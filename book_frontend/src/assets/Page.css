@@ -1,0 +1,30 @@
+.dashboard-page{
+    background: url('./Images/dashboard-pg.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    overflow: hidden;
+}
+
+.dashboard-page::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.dashboard-page form{
+    position: relative;
+    z-index: 1;
+}
+
+.ant-input::placeholder{
+    color: grey;
+}
+
+.ant-input{
+    height: 40px;
+    border-radius: 20px;
+    border-color: blueviolet;
+}

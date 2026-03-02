@@ -1,0 +1,33 @@
+.images{
+    background: url('./Images/Book_Card.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 450px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.images::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.images *{
+    position: relative;
+    z-index: 1;
+}
+
+h5{
+    color: #000 !important;
+    font-family: 'Poppins' !important;
+    font-weight: 100;
+}
+
+p{
+    font-family: 'Poppins' !important;
+    font-weight: 100;
+}
