@@ -36,11 +36,23 @@ const Login = () => {
         }
     }
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '70px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '70px',
+            background: 'linear-gradient(to left, #fb7185, #a21caf, #6366f1)',
+            minHeight: '100vh', margin: '0', padding: '0'
+         }}>
             <div>
                 
             </div>
-            <div>
+            <div style={{
+                width: '400px',
+                height: '350px',
+                border:'1px solid white',
+                borderRadius: '30px',
+                marginTop: '100px',
+                marginRight: '310px',
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(16px)'
+            }}>
                 <Form onFinish={handleSubmit}>
 
                     <div style={{
@@ -70,7 +82,9 @@ const Login = () => {
                                 }
                             ]}
                         >
-                            <Input.Password name='password'
+                            <Input.Password name='password' style={{borderRadius: '15px',
+                                borderColor: '#ff7e5f'
+                            }}
                                 value={data.password} onChange={handleChange}
                             />
                         </Form.Item>
@@ -89,7 +103,7 @@ const Login = () => {
                         </Form.Item>
                         <Form.Item>
                             <Text>Don't have an account?
-                                <Link to={'/register'}> Sign Up</Link>
+                                <Link to={'/register'}> <Text>Sign Up</Text></Link>
                             </Text>
                         </Form.Item>
                     </div>

@@ -1,7 +1,8 @@
 from db import books_col
 from flask import Blueprint, jsonify, request
 from datetime import datetime
-
+from db import users_col
+from db import borrow_request_col
 
 books_api = Blueprint("books_api", __name__)
 
@@ -76,25 +77,65 @@ def view_all_books():
         "available_copies": 1,
         "status": 1,
         "created_at": 1,
-        "updated_at":1
+        "updated_at":1,
+        "image": 1
     }))
 
     for book in books:
         book["_id"] = str(book["_id"])
 
-    # if isinstance(book.get("created_at"), datetime):
-    #         book["created_at"] = book["created_at"].strftime(
-    #             '%A, %Y-%m-%d %I:%M:%S %p'
-    #         )
-    # if isinstance(book.get("updated_at"), datetime):
-    #         book["created_at"] = book["updated_at"].strftime(
-    #             '%A, %Y-%m-%d %I:%M:%S %p'
-    #         )
+    users = users_col.count_documents({"role_id": "R2"})
 
+    borrow_count = list(borrow_request_col.find({},{
+                            "id": 1,
+                            "user_id": 1,
+                            "book_id": 1,
+                            "approved_date": 1,
+                            "due_date": 1,
+                            "return_date": 1,
+                            "status": 1
+                        }))
+    for b in borrow_count:
+        b["_id"] = str(b["_id"])
+
+    # status_counts = list(borrow_request_col.aggregate([
+    #     {
+    #         "$match": {
+    #             "status": {"$in": ["ACCEPT", "REJECT"]}
+    #         }
+    #     },
+    #     {
+    #         "$group":{
+    #             "_id": "$status",
+    #             "count": {"$sum":1}
+    #         }
+    #     }
+    # ]))
+
+    # result = {
+    #     "ACCEPT": 0, 
+    #     "REJECT": 0
+    # }
+
+    # for item in status_counts:
+    #     if item["_id"] == "ACCEPT":
+    #         result["ACCEPT"] = item["count"]
+    #     elif item["_id"] == "REJECT":
+    #         result["REJECT"] = item["count"]
+
+    reject_count = borrow_request_col.count_documents({"status": "REJECT"})
+    approve_count = borrow_request_col.count_documents({"status": "ACCEPT"})
     return jsonify({
         "message": "Books fetched",
-        "count": len(books),
-        "books": books
+        "count": {
+            "book_count": len(books),
+            "user_count": users,
+            "books": books,
+            "borrow_book": len(borrow_count),
+            "borrow": borrow_count,
+            "approve_count": approve_count,
+            "reject_count": reject_count
+        }
     }), 200
 
 

@@ -92,3 +92,15 @@ def Menu():
             "menus": menu["menus"]
         }
     }), 200
+
+@auth_user_api.route("/profile/<user_id>", methods=["GET"])
+def get_user_by_id(user_id):
+    user = users_col.find_one({"id": user_id}, {"_id": 0, "id": 0})
+    
+    if not user:
+        return {"message": "user not found"}
+
+    if "_id" in user:
+        user["_id"] = str(user["_id"])
+
+    return {"user": user}, 200

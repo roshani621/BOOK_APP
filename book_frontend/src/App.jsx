@@ -3,7 +3,6 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Register from './Auth/Register';
 import Login from './Auth/Login';
 import Dashboard from './Pages/dashboard/Dashboard';
-import Add_Book from './Pages/Admin_Books/Add_Book';
 import ViewBook from './Pages/Users/ViewBook';
 import MyBorrowBook from './Pages/Users/MyBorrowBook';
 import BorrowRequest from './Pages/Admin_Books/BorrowRequest';
@@ -11,6 +10,7 @@ import BorrowRecords from './Pages/Admin_Books/BorrowRecords';
 import MyBorrowHistory from './Pages/Users/MyBorrowHistory';
 import ReturnBook from './Pages/Users/ReturnBook';
 import UpdateBook from './Pages/Admin_Books/UpdateBook';
+import Add_Book from './Pages/Admin_Books/Add_Book';
 
 const App = () => {
   return (

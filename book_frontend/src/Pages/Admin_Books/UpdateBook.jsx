@@ -1,8 +1,9 @@
-    import { Button, Form, Input, Typography } from 'antd';
+    import { Button, Form, Input, InputNumber, Typography } from 'antd';
     import axios from 'axios';
     import React, { useEffect, useState } from 'react';
     import Navtab from '../Components/Navtab';
     import Sidebar from '../Components/Sidebar';
+    import "../../assets/CommonImages.css";
 
     const { Text, Title } = Typography;
     const { Search } = Input;
@@ -44,7 +45,14 @@
             const { name, value } = e.target;
             setBook((prev)=>({
                 ...prev,
-                [name]: value
+                [name]: value 
+            }))
+        }
+
+        const handleNumber = (name, value)=>{
+            setBook((prev)=>({
+                ...prev,
+                [name]:value
             }))
         }
 
@@ -63,17 +71,34 @@
         const [form] = Form.useForm();
 
         return (
-            <div>
+            <div style={{
+                background: 'linear-gradient(135deg, #6D597A, #B8A4D4)',
+                minHeight: '100vh', 
+                display: 'flex',
+                flexDirection: 'column'
+                }}>
                 <Navtab onMenuClick={openDrawer} />
                 <Sidebar open={drawerOpen} onClose={closeDrawer} />
                 <div style={{
+                    flex: '1',
                     display: 'flex',
-                    justifyContent: 'center'
-                }}>
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '40px 20px',
+                    minHeight: 'calc(100vh - 90px)'
+                    }}>
+
                     <Form form={form} onFinish={handleSubmit} style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        width: '350px'
+                        width: '500px',
+                        maxWidth: '100%',
+                        padding: '20px 50px',
+                        borderRadius: '20px',
+                        paddingTop: '50px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                        boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        borderColor: '#6D597A',
+                        marginTop: '28px'
                     }}>
                         <Title level={4} style={{ textAlign: 'center' }}>Update Book</Title>
                         <Form.Item label={'Book ID'}>
@@ -115,19 +140,21 @@
                         <Form.Item
                             label={'Total Copies'}
                         >
-                            <Input name='total_copies' placeholder='enter total copies in number'
-                                value={book.total_copies} onChange={handleChange}
+                            <InputNumber min={0} className='input-number'
+                                value={book.total_copies} 
+                                onChange={(value)=>{handleNumber("total_copies", value)}}
                             />
                         </Form.Item>
                         <Form.Item
                             label={'Available Copies'}
                         >
-                            <Input name='available_copies' placeholder='enter available copies in number'
-                                value={book.available_copies} onChange={handleChange}
+                            <InputNumber min={0} className='input-number'
+                                value={book.available_copies} 
+                                onChange={(value)=>{handleNumber("available_copies", value)}}
                             />
                         </Form.Item>
                         <Form.Item style={{ textAlign: 'center' }}>
-                            <Button htmlType='submit'>Update Book</Button>
+                            <Button variant='solid' color='primary' htmlType='submit'>Update Book</Button>
                         </Form.Item>
                     </Form>
                 </div>

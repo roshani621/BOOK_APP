@@ -1,102 +1,144 @@
-import { Button, Card, Col, Input, Row, Typography } from 'antd';
+import { Button, Card, Col,InputNumber,Input, Row, Typography } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Navtab from '../Components/Navtab';
 import Sidebar from '../Components/Sidebar';
+import "../../assets/CommonImages.css";
 
-const {Text, Title} = Typography;
+
+const { Text, Title } = Typography;
+const {Meta} = Card;
 const { Search } = Input;
 const ViewBook = () => {
 
     const [books, setBooks] = useState([]);
-    const [borrow_days, setBorrow_days] = useState({});
+    const [borrow_days, setBorrow_days] = useState(0);
 
     const [drawerOpen, setDrawerOpen] = useState(false);
-    
-    const openDrawer = () =>{
+
+    const openDrawer = () => {
         setDrawerOpen(true);
     }
-    
-    const closeDrawer = () =>{
+
+    const closeDrawer = () => {
         setDrawerOpen(false);
     }
 
-    const fetchBooks = async() =>{
-        try{
+    const fetchBooks = async () => {
+        try {
             const res = await axios.get("http://127.0.0.1:5000/books");
             setBooks(res.data.books);
 
-        }catch(err){
+        } catch (err) {
             console.log(err);
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchBooks();
-    },[]);
+    }, []);
 
-    const handleBorrowRequest =async(bookId)=>{
-        try{
-            if(!borrow_days){
+    const handleBorrowRequest = async (bookId) => {
+        try {
+            if (!borrow_days) {
                 alert("Please enter borrow days");
                 return;
             }
+            const days = borrow_days[bookId]
+            console.log(days)
             const userId = localStorage.getItem("b_user_id");
             const payload = {
                 user_id: userId,
                 book_id: bookId,
-                borrow_days: borrow_days
+                borrow_days: days
             };
             console.log(payload)
             const res = await axios.post("http://127.0.0.1:5000/book-request", payload);
             alert(res.data.message);
-        } catch(err){
+            window.location.reload();
+        } catch (err) {
             alert("Failed to send borrow request", err);
         }
     }
+
     return (
-        <div>
-            <Navtab onMenuClick={openDrawer}/>
-            <Sidebar open={drawerOpen} onClose={closeDrawer}/>
-            <div>
+        <div style={{background: 'linear-gradient(135deg, #fff5f0, #ffe3d8, #ffd6c9)'}}>
+            <Navtab onMenuClick={openDrawer} />
+            <Sidebar open={drawerOpen} onClose={closeDrawer} />
+            <div style={{textAlign: 'center'}}>
                 <Search placeholder='serach books here'
-                style={{
-                    width: '450px',
-                    margin: '30px',
-                    padding: '10px',
-                    marginLeft: '290px'
-                }}
+                    style={{
+                        width: '450px',
+                        margin: '30px',
+                        padding: '10px',
+                    }}
                 />
             </div>
             <Row>
                 <Col>
-                    <div style={{display: 'flex', flexDirection: 'row', gap: '20px',
-                        flexWrap: 'wrap', justifyContent:'center'
+                    <div style={{
+                        display: 'flex', flexDirection: 'row', gap: '20px',
+                        flexWrap: 'wrap', justifyContent: 'center', 
                     }}>
-                        {books.map((book)=>(
-                            <Card key={book._id} hoverable>
-                                <Title level={5}>Title: <Text>{book.title}</Text></Title>
-                                <Title level={5}>Author: <Text>{book.author}</Text></Title>
-                                <Title level={5}>category: <Text>{book.category}</Text></Title>
-                                <Title level={5}>ISBN Number: <Text>{book.isbn}</Text></Title>
-                                <Title level={5}>Total Copies: <Text>{book.total_copies}</Text></Title>
-                                <Title level={5}>Availabel Copies: <Text>{book.available_copies}</Text></Title>
-                                <Title level={5}>Created Date: <Text>{book.created_at}</Text></Title>
-                                <Title level={5}>Borrow Days</Title>
-                                <Input placeholder='enter borrow days' 
-                                value={borrow_days[book._id] || ""} 
-                                onChange={(e)=>{
-                                    setBorrow_days({
-                                            ...borrow_days,
-                                            [book._id]: e.target.value
-                                        })
+                        {books.map((book) => (
+                            <Card hoverable
+                                style={{
+                                    width: '300px',
+                                    borderRadius: '30px',
+                                    textAlign:'center',
+                                    background: 'rgba(0, 0, 0, 0.1)',
+                                    backdropFilter: 'blur(12px)'
                                 }}
-                                /><br/><br/>
-                                <Button htmlType='submit' variant='solid'
-                                color='danger' style={{
-                                    margin: '10px'
-                                }} onClick={()=>{handleBorrowRequest(book._id)}}
-                                >Borrow Request</Button>
+                                cover={
+                                    <img 
+                                    src={book.image}
+                                    style={{
+                                        width: '100%',
+                                        height: '250px',
+                                        objectFit: 'contain',
+                                        padding: '20px 20px'
+                                    }}
+                                    />
+                                }
+                            >
+                               <Meta 
+                               title={book.title}
+                               description={
+                                <div>
+                                    <Text >Category - {book.category}</Text><br />
+                                </div>
+                               }
+                               />
+                                <Meta
+                                description={
+                                    <span>
+                                        <Text>Borrow Days</Text> <InputNumber style={{
+                                            marginTop: '20px', borderColor: '#EF3340'
+                                        }}  min={1}
+                                            value={borrow_days[book._id]}
+                                            onChange={(value)=>{setBorrow_days(prev=>
+                                            ({...prev, [book._id]:value})
+                                            )}}
+                                        />
+                                    </span>
+                                }
+                                />
+                                <br/>
+                                <Meta 
+                                title={
+                                    <span>
+                                        <Button htmlType='submit' variant='solid'
+                                         style={{
+                                                background: '#EF3340',
+                                                color: 'white',
+                                                margin: '10px',
+                                                fontWeight: 600,
+                                                borderColor: '#EF3340'
+                                            }} onClick={() => { handleBorrowRequest(book._id) }}
+                                        >Borrow Request</Button>
+                                    </span>
+                                }
+                                />
                             </Card>
                         ))}
                     </div>
