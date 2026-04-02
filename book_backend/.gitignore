@@ -1,0 +1,28 @@
+# =========================
+# Python Backend
+# =========================
+book_env/
+venv/
+ENV/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+*.sqlite3
+*.db
+
+.env
+.env.*
+
+instance/
+*.log
+
+# =========================
+# Flask Specific
+# =========================
+*.pid
+*.seed
+*.out
+*.err
