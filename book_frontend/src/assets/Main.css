@@ -1,0 +1,17 @@
+.form .ant-input,
+.form .ant-input-password{
+    border-radius: 30px !important;
+    border-color: white;    
+}
+
+.form{
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+}
+
+.form-page{
+    background-image: url('./patrick-tomasso-5hvn-2WW6rY-unsplash.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100vh;
+}

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Form, Input, Typography, Button } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-
+import {Link} from 'react-router-dom';
 import axios from 'axios';
 import { useForm } from 'antd/es/form/Form';
+import '../assets/Main.css';
 
+const {Text} = Typography;
 const Login = () => {
 
     const [form] = Form.useForm();
@@ -19,24 +21,28 @@ const Login = () => {
         setData({ ...data, [name]: value });
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (values) => {
         try {
-            const res = await axios.post('http://localhost:5000/login', data);
+            const res = await axios.post('http://127.0.0.1:5000/login', values);
             console.log(res);
+            alert(res.data.message);
         } catch (err) {
             console.log(err);
         }
     }
     return (
-        <div>
+        <div className='form-page'>
             <div style={{
                 width: '400px',
                 height: '350px',
                 border: '1px solid black',
                 borderRadius: '20px',
-                padding: '30px',
-            }}>
-                <Form form={form} layout='vertical' onFinish={handleSubmit}>
+                padding: '40px',
+                position: 'absolute',
+                top: '10%',
+                left: '33%'
+            }} className='form'>
+                <Form form={form} layout='vertical' onFinish={handleSubmit} style={{marginTop:'40px'}}>
                     <Form.Item
                         label={'Username'}
                         name={'email'}
@@ -63,6 +69,9 @@ const Login = () => {
                     </Form.Item>
                     <Form.Item>
                         <Button type='primary' htmlType='submit' block>Login</Button>
+                    </Form.Item>
+                    <Form.Item style={{textAlign: 'center'}}>
+                        <Text>Don't have an account? <Link to={'/register'}>register</Link></Text>
                     </Form.Item>
                 </Form>
             </div>

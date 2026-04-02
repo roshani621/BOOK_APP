@@ -6,26 +6,26 @@ auth_api = Blueprint('auth_api', __name__)
 
 #hash password
 def hash_password(password):
-    password_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
-    hash_pass = bcrypt.hashpw(password_bytes, salt)
+    hash_pass = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     return hash_pass
 
 # user login page
 @auth_api.route('/login', methods=["POST"])
 def login():
-    data = request.json
+    data = request.get_json()
 
     email = data.get('email')
     password = data.get('password')
-    hashed_password = hash_password(password)
 
-    result = user_col.insert_one({
-        "email": email,
-        "password": hashed_password
-    })
+    user = user_col.find_one({"email": email})
 
-    return jsonify({
-        "message": "User login has been successfully",
-        "result": result
-    }), 200
+    user['_id'] = str(user['_id'])
+    if not user:
+        return jsonify({"message":"User not found"})
+    
+    if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        return jsonify({"message": "Login Successful", "user": user}), 200
+    else:
+        return jsonify({"message": "Invalid Credential"}), 401
+
+    
