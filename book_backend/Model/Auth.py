@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 import bcrypt
 import os
 from werkzeug.utils import secure_filename
-from DB import user_col  
+from DB import user_col, role_col
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -33,7 +33,7 @@ def login():
     else:
         return jsonify({"message": "Invalid Credential"}), 401
     
-    
+#user registeration
 @auth_api.route('/register', methods=['POST'])
 def register():
     file =  request.files.get('photo')
@@ -75,3 +75,23 @@ def register():
         return jsonify({"message": "Login Successful", "user": user}), 200
     else:
         return jsonify({"message": "Invalid Credential"}), 401
+
+
+@auth_api.route('/menu/<user_id>', methods = ['GET'])
+def Menu(user_id):
+    user = user_col.find_one({"id": user_id})
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    role_id = user.get("role_id")
+
+    role = role_col.find_one({"role_id": role_id}, {"menus": 1, "_id": 1})
+
+    if not role: 
+        return jsonify({"message": "Role not found"}), 404
+
+    return jsonify({
+        "role_id": role_id,
+        "menus": role.get("menus", [])
+    }), 200

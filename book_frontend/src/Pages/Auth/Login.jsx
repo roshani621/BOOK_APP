@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Typography, Button } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import { useForm } from 'antd/es/form/Form';
 import '../../assets/Main.css';
@@ -10,6 +10,7 @@ const {Text} = Typography;
 const Login = () => {
 
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const [data, setData] = useState({
         email: '',
@@ -24,8 +25,11 @@ const Login = () => {
     const handleSubmit = async (values) => {
         try {
             const res = await axios.post('http://127.0.0.1:5000/login', values);
-            console.log(res);
+            console.log(res.data.user);
             alert(res.data.message);
+            navigate('/dashboard');
+            localStorage.setItem("b_role_id", res.data.user.role_id);
+            localStorage.setItem("b_user_id", res.data.user.id)
         } catch (err) {
             console.log(err);
         }
