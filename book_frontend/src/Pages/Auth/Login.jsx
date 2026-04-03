@@ -4,7 +4,7 @@ import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
 import { useForm } from 'antd/es/form/Form';
-import '../assets/Main.css';
+import '../../assets/Main.css';
 
 const {Text} = Typography;
 const Login = () => {
@@ -35,7 +35,7 @@ const Login = () => {
             <div style={{
                 width: '400px',
                 height: '350px',
-                border: '1px solid black',
+                border: '1px solid white',
                 borderRadius: '20px',
                 padding: '40px',
                 position: 'absolute',
@@ -71,7 +71,9 @@ const Login = () => {
                         <Button type='primary' htmlType='submit' block>Login</Button>
                     </Form.Item>
                     <Form.Item style={{textAlign: 'center'}}>
-                        <Text>Don't have an account? <Link to={'/register'}>register</Link></Text>
+                        <Text type='primary'
+                        style={{fontWeight: '30px', color: 'white'}}
+                        >Don't have an account? <Link style={{color: '#ABD9FF'}} to={'/register'}>Register</Link></Text>
                     </Form.Item>
                 </Form>
             </div>

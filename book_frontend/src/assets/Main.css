@@ -3,6 +3,15 @@
     border-radius: 30px !important;
     border-color: white;    
 }
+.form .ant-input::placeholder,
+.form .ant-input-password ::placeholder{
+    color: grey;   
+}
+
+.form .ant-form-item-label > label{
+    color: white;
+    font-weight: 600px;
+}
 
 .form{
     background-color: rgba(255, 255, 255, 0.4);
@@ -10,8 +19,21 @@
 }
 
 .form-page{
-    background-image: url('./patrick-tomasso-5hvn-2WW6rY-unsplash.jpg');
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('./patrick-tomasso-5hvn-2WW6rY-unsplash.jpg');
+    backdrop-filter: blur(10px);
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
     height: 100vh;
+    
+}
+
+.register-page{
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(image11.jpg);
+    backdrop-filter: blur(10px);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100%;
 }
