@@ -3,41 +3,18 @@ import React, { useState } from 'react';
 import Navtab from '../../Components/Navtab';
 import Sidebar from '../../Components/Sidebar';
 
-const AddBook = () => {
+const UpdateBook = () => {
 
     const [open, setOpen] = useState(false);
     
     const showDrawer = () =>setOpen(true);
     const closeDrawer = () =>setOpen(false);
-    const [data, setData] = useState({
-        title: '',
-        author: '',
-        category: '',
-        isbn:'',
-        total_copies: 0,
-        avaialbel_copies: 0
-    });
-
-    const handleChange = (e) =>{
-        const {name, value} = e.target;
-        setData({...data, [name]:value});
-    }
-
-
-    const handleSubmit = async() =>{
-        try{    
-
-        } catch(err){
-            console.log(err);
-        }
-    }
     return (
         <div>
             <div>
                 <Navtab onMenuClick={showDrawer}/>
                 <Sidebar open={open} onClose={closeDrawer}/>
                 <Form 
-                onFinish={handleSubmit}
                 style={{
                     width:'450px',
                     height: '500px',
@@ -53,44 +30,32 @@ const AddBook = () => {
                     <Form.Item 
                     label={'Title'}
                     >
-                        <Input placeholder='enter book name' name='title' value={data.title}
-                        onChange={handleChange}
-                        />
+                        <Input placeholder='enter book name'/>
                     </Form.Item>
                     <Form.Item
                     label={'Author'}
                     >
-                        <Input placeholder='enter book author' name='author' value={data.author}
-                        onChange={handleChange}
-                        />
+                        <Input placeholder='enter book author'/>
                     </Form.Item>
                     <Form.Item
                     label={'Category'}
                     >
-                        <Input placeholder='enter book category' name='category' value={data.category}
-                        onChange={handleChange}
-                        />
+                        <Input placeholder='enter book category'/>
                     </Form.Item>
                     <Form.Item
                     label={'ISBN Number'}
                     >
-                        <Input placeholder='enter isbn number' name='isbn' value={data.isbn}
-                        onChange={handleChange}
-                        />
+                        <Input placeholder='enter isbn number' />
                     </Form.Item>
                     <Form.Item
                     label={'Total Copies'}
                     >
-                        <InputNumber min={1} name='total_copies' value={data.total_copies}
-                        onChange={(value)=>setData({...data, total_copies: value})}
-                        /> 
+                        <InputNumber min={1} /> 
                     </Form.Item>
                     <Form.Item
                     label={'Avaialble Copies'}
                     >
-                        <InputNumber min={1} name='available_copies' value={data.avaialbel_copies}
-                        onChange={(value)=>setData({...data, avaialbel_copies: value})}
-                        /> 
+                        <InputNumber min={1} /> 
                     </Form.Item>
                     <Form.Item>
                         <Button type='primary' htmlType='submit'>Add Book</Button>
@@ -101,4 +66,4 @@ const AddBook = () => {
     );
 };
 
-export default AddBook;
+export default UpdateBook;

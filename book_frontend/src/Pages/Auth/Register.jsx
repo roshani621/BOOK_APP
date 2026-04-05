@@ -28,20 +28,21 @@ const Register = () => {
         try{
             const formData = new FormData();
 
-            formData.append("username", data.usernme);
+            formData.append("username", data.username);
             formData.append("password", data.password);
             formData.append("email", data.email);
             formData.append("phone", data.phone);
             formData.append("photo", file);
+            console.log(formData.append("photo", file))
+            if (file) {
+                formData.append("photo", file);
+            }
 
-            const res = await axios.post('http://127.0.0.1:5000/register', formData,
-                {
-                    headers:{
-                        "Content-Type":"multipart/form-data"
-                    }
-                }
-            );
+            console.log("FILE:", file);
+            const res = await axios.post('http://127.0.0.1:5000/register', formData);
             console.log(res.data);
+            alert(res.data.message);
+            window.location.reload();
         } catch(err){
             console.log(err);
         }
@@ -111,8 +112,13 @@ const Register = () => {
                     label={'Upload Photo'}
                     > 
                         <Upload 
-                        beforeUpload={()=>false}
-                        onChange={handleFileChange}
+                        beforeUpload={() => false}
+                        onChange={(info)=>{
+                            console.log("Selected file:", file);
+                            if(info.file.status !== 'removed'){
+                                setFile(info.file.originFileObj);
+                            }
+                        }}
                         maxCount={1}
                         >
                             <Button icon={<UploadOutlined />}>Upload</Button>

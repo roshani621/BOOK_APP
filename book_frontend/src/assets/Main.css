@@ -37,3 +37,35 @@
     height: 100vh;
     width: 100%;
 }
+
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+
+.card-ui{
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease; 
+}
+
+.card-ui:hover{
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    transform: scale(1.05);
+}
+
+.request-btn{
+    margin-top: 20px;
+    padding: 12px;
+    background: linear-gradient(135deg, #1677ff, #4096ff);
+    border: none;
+    border-radius: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.request-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(22,119,255,0.3);
+}

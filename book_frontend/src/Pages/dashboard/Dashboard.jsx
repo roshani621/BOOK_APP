@@ -2,7 +2,7 @@ import { Layout } from 'antd';
 import React, { useState } from 'react';
 import Navtab from '../../Components/Navtab';
 import Sidebar from '../../Components/Sidebar';
-
+import '../../assets/Main.css';  
 
 const Dashboard = () => {
 
@@ -11,7 +11,7 @@ const Dashboard = () => {
     const showDrawer = () =>setOpen(true);
     const closeDrawer = () =>setOpen(false);
     return (
-        <div>
+        <div className='dashboard'>
             <Layout>
                 <Navtab onMenuClick={showDrawer}/>
                 <Sidebar open={open} onClose={closeDrawer}/>

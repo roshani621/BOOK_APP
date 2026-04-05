@@ -3,6 +3,9 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Login from './Pages/Auth/Login';
 import Register from './Pages/Auth/Register';
 import Dashboard from './Pages/dashboard/Dashboard';
+import AddBook from './Pages/Admin/AddBook';
+import UpdateBook from './Pages/Admin/UpdateBook';
+import ViewBooks from './Pages/Users/ViewBooks';
 
 const App = () => {
   return (
@@ -12,6 +15,9 @@ const App = () => {
           <Route path='/login' element={<Login/>}/>
           <Route path='/register' element={<Register/>}/>
           <Route path='/dashboard' element={<Dashboard />}/>
+          <Route path='/add-book' element={<AddBook/>}/>
+          <Route path='/manage-books' element={<UpdateBook/>}/>
+          <Route path='/books' element={<ViewBooks />}/>
         </Routes>
       </BrowserRouter>
     </div>
