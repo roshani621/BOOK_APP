@@ -6,6 +6,7 @@ import Dashboard from './Pages/dashboard/Dashboard';
 import AddBook from './Pages/Admin/AddBook';
 import UpdateBook from './Pages/Admin/UpdateBook';
 import ViewBooks from './Pages/Users/ViewBooks';
+import BorrowRequest from './Pages/Admin/BorrowRequest';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path='/add-book' element={<AddBook/>}/>
           <Route path='/manage-books' element={<UpdateBook/>}/>
           <Route path='/books' element={<ViewBooks />}/>
+          <Route path='/borrow-requests' element={<BorrowRequest/>}/>
         </Routes>
       </BrowserRouter>
     </div>
