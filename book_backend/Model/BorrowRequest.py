@@ -42,8 +42,10 @@ def BookBorrow():
                 "request_id": 1,
                 "book_id":1,
                 "user_id": 1, 
+                "title": "$book_data.title",
                 "author": "$book_data.author",
                 "category": "$book_data.category",
+                "available_copies": "$book_data.available_copies",
                 "image": "$book_data.image",
                 "username": "$user_data.username",
                 "email": "$user_data.email",
@@ -128,4 +130,62 @@ def RequestStatus():
         return jsonify({"message": "Invalid status"}), 400
     
 
-        
+#borrow records
+@borrow_request_api.route('/borrow-records', methods = ['GET'])
+def BookRecords():
+    pipeline = [
+        {
+            "$lookup":{
+                "from": "Users",
+                "localField": "user_id",
+                "foreignField": "id",
+                "as": "user_data"
+            }
+        },
+        {
+            "$lookup":{
+                "from": "Books",
+                "localField": "book_id",
+                "foreignField": "_id",
+                "as": "book_data"
+            }
+        },
+        {
+            "$unwind": "$user_data",
+        },
+        {
+            "$unwind": "$book_data"
+        },
+        {
+            "$project": {
+                "_id":1,
+                "request_id": 1,
+                "book_id":1,
+                "user_id": 1, 
+                "title": "$book_data.title",
+                "author": "$book_data.author",
+                "category": "$book_data.category",
+                "available_copies": "$book_data.available_copies",
+                "image": "$book_data.image",
+                "username": "$user_data.username",
+                "email": "$user_data.email",
+                "request_date": 1,
+                "approved_date": 1,
+                "due_date": 1,
+                "borrow_days":1,
+                "status": 1,
+                "created_at": 1,
+                "updated_at": 1
+            }
+        }
+    ]
+    book_request = list(borrow_request_col.aggregate(pipeline))
+    for item in book_request:
+        item["_id"] = str(item["_id"])
+
+
+    return jsonify({
+        "message": "Borrow Request",
+        "request": book_request
+    }), 200
+    

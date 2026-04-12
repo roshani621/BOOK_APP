@@ -16,7 +16,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 #hash password
 def hash_password(password):
     hash_pass = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    return hash_pass
+    return hash_pass.decode('utf-8')
 
 # user login page
 @auth_api.route('/login', methods=["POST"])

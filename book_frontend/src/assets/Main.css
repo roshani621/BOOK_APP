@@ -69,3 +69,16 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(22,119,255,0.3);
 }
+
+.sidebar-text{
+    text-align: center;
+}
+
+.sidebar-text:hover{
+    width: 250px;
+    height: 40px;
+    border: 1px solid white;
+    border-radius: 12px;
+    background-color: #0ea5e9;
+    padding: 10px;
+}

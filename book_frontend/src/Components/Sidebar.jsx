@@ -2,7 +2,7 @@ import { Drawer, Layout, Typography } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import '../assets/Main.css';
 
 const {Sider} = Layout;
 const {Title, Text} = Typography;
@@ -42,10 +42,11 @@ const Sidebar = ({open, onClose}) => {
                         {menus.map((menu, index)=>(
                             <Text
                             key={index}
-                            style={{display:'block', margin:"10px 0", cursor: 'pointer',
-                                fontWeight: '500px', fontFamily:'Poppins, sans-serif', fontSize: '14px'
+                            style={{display:'block', cursor: 'pointer',
+                                fontWeight: '500px', fontFamily:'Poppins, sans-serif', fontSize: '11pt',
+                                margin: '10px'
                             }}
-                            onClick={()=>navigate(menu.path)}
+                            onClick={()=>navigate(menu.path)} className='sidebar-text'
                             >
                                 {menu.name}
                             </Text>

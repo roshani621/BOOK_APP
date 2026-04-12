@@ -7,6 +7,7 @@ import AddBook from './Pages/Admin/AddBook';
 import UpdateBook from './Pages/Admin/UpdateBook';
 import ViewBooks from './Pages/Users/ViewBooks';
 import BorrowRequest from './Pages/Admin/BorrowRequest';
+import RequestRecords from './Pages/Admin/RequestRecords';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route path='/manage-books' element={<UpdateBook/>}/>
           <Route path='/books' element={<ViewBooks />}/>
           <Route path='/borrow-requests' element={<BorrowRequest/>}/>
+          <Route path='/borrow-records' element={<RequestRecords/>}/>
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,7 +1,8 @@
-import { Card, Typography, Input, Button, Modal } from 'antd';
+import { Card, Typography, Input, Button, Modal, Result, Row, Col } from 'antd';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import {useNavigate} from 'react-router-dom';
+import Navtab from '../../Components/Navtab';
+import Sidebar from '../../Components/Sidebar';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -9,6 +10,11 @@ const BorrowRequest = () => {
     const [books, setBooks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [remark, setRemark] = useState('');
+    const [open, setOpen] = useState(false);
+
+    const showDrawer = () => setOpen(true);
+    const closeDrawer = () => setOpen(false);
+
     const [selectedId, setSelectedId] = useState({
         request_id: null,
         book_id: null
@@ -74,61 +80,75 @@ const BorrowRequest = () => {
     }, [])
     return (
         <div>
-            {books.length > 0 ? (
-                books.map((book) => (
-                        <Card hoverable>
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                textAlign: 'center',
-                                gap: '10px',
-                                fontWeight: '600px'
-                            }}>
-                                <Card>
-                                    <img src={book.image} style={{
-                                        width: '100%',
-                                        height: '270px',
-                                        objectFit: 'contain'
-                                    }} />
-                                </Card>
-                                <Text>Author - {book.author}</Text>
-                                <Text>Category - {book.category}</Text>
-                                <Text>Username - {book.username}</Text>
-                                <Text>Email - {book.email}</Text>
-                                <Text>Borrow Days - {book.borrow_days}</Text>
-                                <Text>Request Date - {book.request_date}</Text>
-                                <div>
-                                    <Button variant='solid' color='green'
-                                        onClick={() => handleApproved("Approved", book.request_id, book.book_id)}
-                                    >Approved</Button>
-                                    <Button variant='solid' color='red' style={{
-                                        marginLeft: '30px'
-                                    }} onClick={() => handleRejectClick(book.request_id, book.book_id)}>Reject</Button>
-                                </div>
-                            </div>
-                        </Card>
-                    ))
-    ): (<div>
-        <Result
-        title={<Title level={4}>No Pending requests</Title>}
-        >
-        </Result>
-    </div>)}
-        < Modal
-                title='Reject Request'
-            open={isModalOpen}
-            onOk={() => handleReject("Rejected", selectedId.request_id, selectedId.book_id)}
-            onCancel={() => setIsModalOpen(false)}
-            >
-            <Text>Please enter rejection remark:</Text>
-            <TextArea
-                rows={3}
-                value={remark}
-                onChange={(e) => setRemark(e.target.value)}
-                placeholder='Enter remark...'
-            />
-        </Modal>
-        </div >
+            <Navtab onMenuClick={showDrawer} />
+            <Sidebar open={open} onClose={closeDrawer} />
+            <div style={{marginTop: '20px'}}>
+                {books.length > 0 ? (
+                    <Row>
+                        <Col style={{display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '12px'}}>
+                                {books.map((book) => (
+                                    <Card hoverable>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            textAlign: 'center',
+                                            gap: '10px',
+                                            fontWeight: '600px'
+                                        }}>
+                                            <Card hoverable style={{
+                                                background: '#dbeafe',
+                                                borderRadius: '12px',
+                                                backdropFilter: 'blur(12px)',
+                                                boxShadow: '2px 8px 12px rgba(255, 255, 255, 0.1)'
+                                            }}>
+                                                <img src={book.image} style={{
+                                                    width: '100%',
+                                                    height: '270px',
+                                                    objectFit: 'contain'
+                                                }} />
+                                            </Card>
+                                            <Text>Author - {book.author}</Text>
+                                            <Text>Category - {book.category}</Text>
+                                            <Text>Username - {book.username}</Text>
+                                            <Text>Email - {book.email}</Text>
+                                            <Text>Available Copies - {book.available_copies}</Text>
+                                            <Text>Borrow Days - {book.borrow_days}</Text>
+                                            <Text>Request Date - {book.request_date}</Text>
+                                            <div>
+                                                <Button variant='solid' color='green'
+                                                    onClick={() => handleApproved("Approved", book.request_id, book.book_id)}
+                                                >Approved</Button>
+                                                <Button variant='solid' color='red' style={{
+                                                    marginLeft: '30px'
+                                                }} onClick={() => handleRejectClick(book.request_id, book.book_id)}>Reject</Button>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                        </Col>
+                    </Row>
+                ) : (<div>
+                    <Result
+                        title={<Title level={4}>No Pending requests</Title>}
+                    >
+                    </Result>
+                </div>)}
+                < Modal
+                    title='Reject Request'
+                    open={isModalOpen}
+                    onOk={() => handleReject("Rejected", selectedId.request_id, selectedId.book_id)}
+                    onCancel={() => setIsModalOpen(false)}
+                >
+                    <Text>Please enter rejection remark:</Text>
+                    <TextArea
+                        rows={3}
+                        value={remark}
+                        onChange={(e) => setRemark(e.target.value)}
+                        placeholder='Enter remark...'
+                    />
+                </Modal>
+            </div >
+        </div>
     );
 };
 

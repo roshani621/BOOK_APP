@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Upload } from 'antd';
+import { Button, Form, Input, Upload, Typography } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../../assets/Main.css';
+import { Link } from 'react-router-dom';
+import { FaCircleArrowRight } from "react-icons/fa6";
+
+
+const {Text} = Typography;
 
 const Register = () => {
 
@@ -128,6 +133,18 @@ const Register = () => {
                         <Button type='primary' htmlType='submit' style={{
                             width: '100%',
                         }}>Register</Button>
+                    </Form.Item>
+                    <Form.Item>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',
+                        gap: '10px', 
+                    }}>
+                        <Text style={{
+                            fontWeight: '400', fontSize: '12pt', color: 'white'
+                        }}>Back to login page 
+                            </Text>
+                        <Link to={'/login'}><FaCircleArrowRight 
+                        style={{color: '#ABD9FF', fontSize: '12pt', marginTop:'10px' }}
+                        /></Link> </div>
                     </Form.Item>
                 </Form>
             </div>
