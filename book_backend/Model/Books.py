@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from DB import book_col, borrow_request_col
+from DB import book_col, borrow_request_col, user_col
 from datetime import datetime, timedelta
 
 books_api = Blueprint('books', __name__)
@@ -79,4 +79,41 @@ def BookRequest():
     }), 200
 
 
+@books_api.route('/books-count', methods = ['GET'])
+def BooksCount():
+    books = list(book_col.find({},{
+        "total_copies": 1,
+        "available_copies": 1,
+    }))
+
+    borrows = list(
+        borrow_request_col.find({},
+                {
+                    "status": 1
+                })
+    )
     
+    users = list(
+        user_col.find({},
+                  {
+                      "_id": 1,
+                  })
+    )
+    
+    total_books = sum(book.get("total_copies", 0) for book in books)
+
+    available_books = sum(book.get("available_copies", 0) for book in books)
+
+    pending_request = sum(1 for b in borrows if b.get("status") == "Pending")
+    approved_request = sum(1 for b in borrows if b.get("status") == "Approved")
+    # pending_request = sum(1 for b in borrows if b.get("status") == "Pending")
+
+    total_user = len(users)
+
+    return jsonify({
+        "total_books": total_books,
+        "available_books": available_books,
+        "pending_requests": pending_request,
+        "approved_requests": approved_request,
+        "total_users": total_user
+    }), 200

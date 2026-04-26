@@ -33,7 +33,7 @@ const Sidebar = ({open, onClose}) => {
                     <Drawer
                     placement='left'
                     title={<Text onClick={()=>{navigate('/dashboard')}}
-                    style={{fontWeight: '200px', fontSize: '14pt'}}
+                    style={{fontWeight: '200px', fontSize: '14pt', cursor: 'pointer'}}
                     >Dashboard</Text>}
                     open={open}
                     onClose={onClose}
