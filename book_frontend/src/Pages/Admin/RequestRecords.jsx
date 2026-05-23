@@ -110,24 +110,9 @@ const RequestRecords = () => {
                 if(status === 'Approved') color = 'green';
                 else if(status === 'Rejected') color = 'red';
 
-                return <Tag color={color} style={{fontSize: '16px'}}>{status}</Tag>
-            }
-        },{
-            title: 'Approved Date / Rejected Date',
-            key: 'approved_date',
-            align:'center',
-            render: (_, record)=>{
-                const date =
-                record.status === 'Approved'
-                    ? record.approved_date
-                    : record.status === 'Rejected'
-                    ? record.updated_at
-                    : record.request_date;
-                return(
-                    <Text>
-                        {date ? new Date(date).toLocaleString() : 'N/A'}
-                    </Text>
-                )
+                return <Tag color={color} style={{fontSize: '16px',
+                    background: '#F5C4B3'
+                }}>{status}</Tag>
             }
         },
         {
@@ -139,6 +124,34 @@ const RequestRecords = () => {
             )
         },
         {
+            title: 'Action Date',
+            key: 'action_date',
+            align: 'center',
+            render: (_, record) => {
+                if (record.status === 'Approved') {
+                    return (
+                        <Text style={{ color: 'green' }}>
+                            {record.approved_date 
+                                ? new Date(record.approved_date).toLocaleString()
+                                : '-'}
+                        </Text>
+                    );
+                }
+
+                if (record.status === 'Rejected') {
+                    return (
+                        <Text style={{ color: 'red' }}>
+                            {record.approved_date 
+                                ? new Date(record.approved_date).toLocaleString()
+                                : '-'}
+                        </Text>
+                    );
+                }
+
+                return <Text type="secondary">Pending</Text>;
+            }
+        },
+        {
             title: 'Due Date',
             key: 'due_date',
             align: 'center',
@@ -148,7 +161,7 @@ const RequestRecords = () => {
         }
     ]
     return (
-        <div>
+        <div style={{background: '#FAECE7', minHeight: '100vh'}}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
             <div>
@@ -176,6 +189,7 @@ const RequestRecords = () => {
                             style={{
                                 textAlign: 'center',
                             }}
+                            rowClassName={()=>'custom-row'}
                             />
                         </div>
                     </Col>

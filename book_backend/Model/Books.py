@@ -7,14 +7,19 @@ books_api = Blueprint('books', __name__)
 @books_api.route('/books', methods=['GET'])
 def get_books():
     books = book_col.find({},{
-        "_id": 1,
-        "title": 1,
+        "id": 1,
+        "book_name": 1,
+        "description": 1,
         "author": 1,
         "category": 1,
         "isbn": 1,
+        "total_pages": 1,
         "total_copies": 1,
         "available_copies": 1,
-        "image": 1    
+        "image": 1,
+        "rating": 1,
+        "short_description": 1,
+        "publish_date": 1
     })
 
     book_list = []

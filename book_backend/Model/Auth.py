@@ -110,3 +110,55 @@ def Menu(user_id):
         "role_id": role_id,
         "menus": role.get("menus", [])
     }), 200
+
+
+@auth_api.route('/user-profile/<user_id>', methods = ['GET'])
+def User_Profile(user_id):
+    if not user_id:
+        return jsonify({"message": "User not found"}), 404
+
+    pipeline = [
+        {
+            "$match": {
+                "id": user_id
+            }
+        },
+        {
+            "$lookup":{
+                "from": "Roles",
+                "localField": 'role_id',
+                "foreignField": 'role_id',
+                "as": 'role_data'
+            }
+        },
+        {
+            "$unwind": "$role_data"
+        },
+        {
+            "$project": {
+                ""
+                "role_name": "$role_data.role_name",
+                "role_id": 1,
+                "user_id": "$id",
+                "username": 1,
+                "email": 1,
+                "phone": 1,
+                "status": 1,
+                "photo": 1,
+                "created_at": 1,
+                "updated_at": 1
+            }
+        }
+    ]
+
+    user = list(user_col.aggregate(pipeline))
+    for item in user:
+        item["_id"] = str(item["_id"])
+
+    print(user)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    return jsonify({
+        "user": user[0] 
+    }), 200

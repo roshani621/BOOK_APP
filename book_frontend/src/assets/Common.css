@@ -1,7 +1,49 @@
 .ant-table-thead > tr > th{
-    background: #86efac !important;
+    background: #D85A30 !important;
+    color: white;
 }
 
 .table-container{
     margin-left: 30px;
+    color: #F5C4B3;
+    border-radius: 12px;
+}
+.custom-row td{
+    background: #F5C4B3;
+}
+
+.request-card .card{
+    min-width: 300px;
+}
+.card{
+    width: 100%;
+    min-height: 50px;
+    border-color: #F5C4B3;
+}
+.card-inner{
+    display: flex;
+    align-items: center !important;
+    gap: 10px;
+}
+.card-inner .ant-typography{
+    margin: 0 !important;
+}
+.card .icon{
+    font-size: 19px;
+    color: #993C1D;
+}
+
+.card h5{
+    font-weight: 700px;
+    color: #993C1D;
+}
+
+.card .text{
+    color: #712B13;
+}
+.card-h h4{
+    color: #4A1B0C;
+}
+.card-h .text-h{
+    color: #712B13;
 }

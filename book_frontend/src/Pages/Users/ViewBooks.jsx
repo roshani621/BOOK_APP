@@ -1,4 +1,4 @@
-import { Card, Col, Drawer, Row, Typography, Tag, Button, InputNumber } from 'antd';
+import { Card, Col, Drawer, Row, Typography, Tag, Button, InputNumber, Rate } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Navtab from '../../Components/Navtab';
@@ -37,6 +37,7 @@ const ViewBooks = () => {
 
     const handleBookRequest = async(bookId) =>{
         try{
+            console.log(selectedBook)
             const user_id = localStorage.getItem("b_user_id");
             const res = await axios.post("http://127.0.0.1:5000/book-request", {
                 user_id: user_id,
@@ -99,7 +100,7 @@ const ViewBooks = () => {
                     >
                         <div>
                             {selectedBook && (
-                                <Card key={selectedBook._id} style={{borderRadius: '14px',boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                                <Card key={selectedBook.id} style={{borderRadius: '14px',boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
                                 }}>
                                     <div style={{
                                         display :'flex',
@@ -120,10 +121,12 @@ const ViewBooks = () => {
                                         </Card>
                                         <Title level={5}
                                             style={{ marginTop: '15px' }}
-                                        >Title - {selectedBook.title}</Title>
+                                        >Title - {selectedBook.book_name}</Title>
+                                        <Text>Description - {selectedBook.description}</Text>
                                         <Text>Author - {selectedBook.author}</Text>
                                         <Text>Category - {selectedBook.category}</Text>
                                         <Text>ISBN Number - {selectedBook.isbn}</Text>
+                                        <Text>Total Pages - {selectedBook.total_pages}</Text>
                                         <Text>Status:
                                             {selectedBook.available_copies > 0 ? <Tag color={'green'} variant='filled'>
                                                 <Text type='success'>Available</Text>
@@ -132,6 +135,7 @@ const ViewBooks = () => {
                                                     <Text type='danger'>Out of stock</Text>
                                                 </Tag>
                                             }</Text>
+                                        <Text>Rating - {selectedBook.rating}</Text> 
                                         <Text>Borrow Days</Text>
                                         <InputNumber 
                                         style={{marginLeft:'100px'}}
@@ -143,7 +147,7 @@ const ViewBooks = () => {
                                             block
                                             disabled={selectedBook.available_copies === 0}
                                             className='request-btn'
-                                            onClick={() => handleBookRequest(selectedBook._id)}
+                                            onClick={() => handleBookRequest(selectedBook.id)}
                                         >
                                             Request Book
                                         </Button>

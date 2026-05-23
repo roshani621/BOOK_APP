@@ -112,9 +112,10 @@ const DashChart = () => {
   return (
     <>
       <div style={{
+        background: '#FAECE7'
       }}>
         <div>
-          <Card>
+          <Card style={{background: '#FAECE7'}}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'space-evenly' }}>
               {[
                 {
@@ -143,7 +144,7 @@ const DashChart = () => {
             </div>
           </Card>
         </div>
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
           <Card hoverable style={{
             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '12px',
             background: '#FFEBD8',
@@ -151,7 +152,7 @@ const DashChart = () => {
             margin: '20px', height: '350px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
-              <div style={{ width: '360px', height: '250px', margin: '20px 30px' }}>
+              <div style={{ width: '400px', height: '250px', margin: '20px 30px' }}>
                 {chartData ? (
 
                   <Pie data={chartData} options={{
@@ -165,7 +166,7 @@ const DashChart = () => {
                   <Text>Loading...</Text>
                 )}
               </div>
-              <div style={{ marginTop: '50px', marginRight: '40px' }}>
+              <div style={{ marginTop: '50px', marginRight: '10px' }}>
                 {chartData?.labels.map((label, index) => (
                   <div key={index}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -185,7 +186,7 @@ const DashChart = () => {
           </Card>
           <Card style={{
             height: '350px', margin: '20px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '12px',
-            background: '#FFEBD8', backdropFilter: 'blur(12px)'
+            background: '#FFEBD8', backdropFilter: 'blur(12px)', width: '600px'
           }} hoverable title={<Title type='secondary' level={5}>Recent Request</Title>}>
             {booksDetails ? (
               booksDetails.map((b, index) => (
@@ -201,7 +202,7 @@ const DashChart = () => {
                     }}>
                       <Text style={{
                         textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '70%'
-                      }}>{b.title}</Text>
+                      }}>{b.book_name}</Text>
                       <Tag color={b.status === 'Approved' ? 'green' :
                         b.status === 'Pending' ? 'orange' : 'red'
                       } variant='solid'>{b.status}</Tag>
@@ -221,7 +222,7 @@ const DashChart = () => {
           </Card>
         </div>
       </div>
-      <div>
+      <div style={{background: '#FAECE7'}}>
         <Card>
           <div style={{
             display: 'flex',
@@ -263,11 +264,13 @@ const DashChart = () => {
             ))}
           </div>
           <Row>
-            <Col style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Col style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center',
+              background: '#FAECE7', gap: '20px'
+             }}>
               {books.filter(book => !selectedCategory || book.category === selectedCategory)
                 .map((b, index) => (
                   <Card key={index}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  }}>
                       <img src={b.image} style={{
                       width: '100%',
                       height: '250px',

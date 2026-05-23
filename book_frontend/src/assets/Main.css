@@ -71,14 +71,16 @@
 }
 
 .sidebar-text{
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    padding: 10px 10px;
+    color: #7f1d1d;
+    font-weight: 900px;
+    cursor: pointer;
 }
 
-.sidebar-text:hover{
-    width: 250px;
-    height: 40px;
-    border: 1px solid white;
-    border-radius: 12px;
-    background-color: #0ea5e9;
-    padding: 10px;
+.sidebar-icon{
+    font-size: 19px;
 }

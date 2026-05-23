@@ -26,7 +26,7 @@ def BookBorrow():
             "$lookup":{
                 "from": "Books",
                 "localField": "book_id",
-                "foreignField": "_id",
+                "foreignField": "id",
                 "as": "book_data"
             }
         },
@@ -42,7 +42,7 @@ def BookBorrow():
                 "request_id": 1,
                 "book_id":1,
                 "user_id": 1, 
-                "title": "$book_data.title",
+                "book_name": "$book_data.book_name",
                 "author": "$book_data.author",
                 "category": "$book_data.category",
                 "available_copies": "$book_data.available_copies",
@@ -60,6 +60,7 @@ def BookBorrow():
     for item in book_request:
         item["_id"] = str(item["_id"])
 
+    print(book_request)
 
     return jsonify({
         "message": "Borrow Request",
@@ -74,62 +75,61 @@ def RequestStatus():
     request_status = data.get("request_status")
     request_id = data.get("request_id")
     user_id = data.get("user_id")
-    approved_date = datetime.utcnow()
-    book_id = data.get("book_id")
+    book_id = data.get("book_id")   # ✅ FIXED
     remark = data.get("remark")
+    approved_date = datetime.utcnow()
 
     request_data = borrow_request_col.find_one({"request_id": request_id})
 
     if not request_data:
         return jsonify({"message": 'Request not found'}), 404
-    
-    if request_status == 'Approved':
 
-        book = book_col.find_one({"_id": book_id})
+    book = book_col.find_one({"id": book_id})
+
+    if not book:
+        return jsonify({"message": "Book not found"}), 404
+
+    if request_status == 'Approved':
 
         if book["available_copies"] <= 0:
             return jsonify({"message": "No copies available"}), 400
-        
+
         borrow_request_col.update_one(
-        {"request_id": request_id},    
-        {
-            "$set":{
+            {"request_id": request_id},
+            {"$set": {
                 "status": request_status,
                 "approved_by": user_id,
                 "approved_date": approved_date,
                 "updated_at": datetime.utcnow()
-            }
-        })
+            }}
+        )
 
         book_col.update_one(
-        {"_id": book_id},    
-        {
-            "$inc": {"available_copies": -1}
-        })
+            {"id": book_id},
+            {"$inc": {"available_copies": -1}}
+        )
+
         return jsonify({"message": "Request Approved"}), 200
 
     elif request_status == 'Rejected':
-        book = book_col.find_one({"_id": book_id})
 
-        if book["available_copies"] <= 0:
-            return jsonify({"message": "No copies available"}), 400
-        
         borrow_request_col.update_one(
-        {"request_id": request_id},    
-        {
-            "$set":{
+            {"request_id": request_id},
+            {"$set": {
                 "status": request_status,
                 "approved_by": user_id,
                 "approved_date": approved_date,
                 "remark": remark,
                 "updated_at": datetime.utcnow()
-            }
-        })
+            }}
+        )
+
         return jsonify({"message": "Request Rejected"}), 200
+
     else:
         return jsonify({"message": "Invalid status"}), 400
     
-
+    
 #borrow records
 @borrow_request_api.route('/borrow-records', methods = ['GET'])
 def BookRecords():
@@ -146,7 +146,7 @@ def BookRecords():
             "$lookup":{
                 "from": "Books",
                 "localField": "book_id",
-                "foreignField": "_id",
+                "foreignField": "id",
                 "as": "book_data"
             }
         },
@@ -162,10 +162,13 @@ def BookRecords():
                 "request_id": 1,
                 "book_id":1,
                 "user_id": 1, 
-                "title": "$book_data.title",
+                "book_name": "$book_data.book_name",
+                "description": "$book_data.description",
                 "author": "$book_data.author",
                 "category": "$book_data.category",
+                "total_pages": "$book_data.total_pages",
                 "available_copies": "$book_data.available_copies",
+                "rating": "$book_data.rating",
                 "image": "$book_data.image",
                 "username": "$user_data.username",
                 "email": "$user_data.email",

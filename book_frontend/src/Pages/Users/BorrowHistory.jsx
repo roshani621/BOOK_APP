@@ -112,23 +112,6 @@ const BorrowHistory = () => {
 
                 return <Tag color={color} style={{fontSize: '16px'}}>{status}</Tag>
             }
-        },{
-            title: 'Approved Date / Rejected Date',
-            key: 'approved_date',
-            align:'center',
-            render: (_, record)=>{
-                const date =
-                record.status === 'Approved'
-                    ? record.approved_date
-                    : record.status === 'Rejected'
-                    ? record.updated_at
-                    : record.request_date;
-                return(
-                    <Text>
-                        {date ? new Date(date).toLocaleString() : 'N/A'}
-                    </Text>
-                )
-            }
         },
         {
             title: 'Created Date',
