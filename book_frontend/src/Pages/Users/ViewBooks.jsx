@@ -95,20 +95,21 @@ const ViewBooks = () => {
                         open={bookDrawer}
                         width={400}
                         style={{
-                            background: ''
+                            background: '#fecaca'
                         }}
                     >
                         <div>
                             {selectedBook && (
                                 <Card key={selectedBook.id} style={{borderRadius: '14px',boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                                background: '#fecaca',borderColor: '#fecaca'
                                 }}>
                                     <div style={{
                                         display :'flex',
                                         flexDirection: 'column',
                                         textAlign: 'center',
                                         gap: '10px',
-                                        fontFamily: "'Poppins', 'Segoe UI', sans-serif"
-                                    }}>
+                                        fontFamily: "'Poppins', 'Segoe UI', sans-serif",
+                                    }} className='vb-text'>
                                         <Card hoverable
                                         style={{background: 'rgba(0, 0, 0, 0.1)', padding: '20px',
                                             borderRadius: '12px',

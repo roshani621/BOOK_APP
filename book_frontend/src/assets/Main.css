@@ -54,10 +54,18 @@
     transform: scale(1.05);
 }
 
+.vb-text h5{
+    color: #b91c1c !important;
+}
+
+.vb-text .ant-typography{
+    color: #7f1d1d;
+}
+
 .request-btn{
     margin-top: 20px;
     padding: 12px;
-    background: linear-gradient(135deg, #1677ff, #4096ff);
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
     border: none;
     border-radius: 15px;
     font-weight: 600;
