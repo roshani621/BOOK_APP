@@ -1,33 +1,28 @@
-import { Avatar, Result, Typography, Card, Divider, Tag } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { FaArrowLeft } from "react-icons/fa6";
+import { TbShieldCheck } from "react-icons/tb";
+import { Avatar, Card, Space, Tag, Typography, Row, Col } from 'antd';
+import { CiMail } from "react-icons/ci";
 import axios from 'axios';
-import { MdCheckCircle, MdOutlineMail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa6";
-import { HiOutlineIdentification } from "react-icons/hi2";
-import { FiShield } from "react-icons/fi";
 import { CiCalendarDate } from "react-icons/ci";
-import Navtab from './Navtab';
-import Sidebar from './Sidebar';
-
+import { useNavigate } from 'react-router-dom';
 import '../assets/Common.css';
 
 const { Title, Text } = Typography;
-const {Meta} = Card;
 const Profile = () => {
 
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState([]);
     const [requests, setRequests] = useState([]);
     const user_id = localStorage.getItem('b_user_id');
-
-    const [open, setOpen] = useState(false);
-    
-    const showDrawer = () => setOpen(true);
-    const closeDrawer = () => setOpen(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchUserProfile = async (values) => {
+        const fetchUserProfile = async () => {
             try {
                 const res = await axios.get(`http://127.0.0.1:5000/user-profile/${user_id}`);
+                console.log(res.data.user)
                 setUser(res.data.user)
             } catch (err) {
                 console.log(err);
@@ -51,176 +46,276 @@ const Profile = () => {
 
 
 
-    const fetchRecords = async() =>{
-        try{
+    const fetchRecords = async () => {
+        try {
             const res = await axios.get("http://127.0.0.1:5000/borrow-records");
             const newData = res.data.request;
-            setRequests(newData);
+            const userRequest = newData.filter(
+                req => req.user_id === user_id
+            );
+            setRequests(userRequest);
             console.log(newData);
-        }catch(err){
+        } catch (err) {
             console.log(err);
         }
     }
 
-    useEffect(()=>{
-        fetchRecords();
-    },[]);
-    return (
-        <div style={{background: '#FAECE7'}}>
-            <Navtab onMenuClick={showDrawer} />
-            <Sidebar open={open} onClose={closeDrawer} />
-            {user ? (
-                <>
-                    <div>
-                        <Card hoverable style={{background: '#D85A30', borderRadius: '20px',
-                            margin: '20px 20px'
-                        }}>
-                            <div>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                
-                                }}> 
-                                    <div className='card-inner'>
-                                        <Avatar size={90}>{getInitials(user.username)}</Avatar>
-                                        <div>
-                                            <Title level={4} style={{ color: 'white'}}>{user.username}</Title>
-                                            <Text className='card-inner'
-                                            style={{ color: 'white'}}
-                                            ><MdOutlineMail /><Text style={{ color: 'white'}}>{user.email}</Text></Text>
-                                            <Text className='card-inner' style={{ color: 'white'}}
-                                            ><FaPhone /><Text style={{ color: 'white'}}>{user.phone}</Text></Text>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <Text style={{ color: 'white'}}>{user.user_id}</Text>
-                                        <div className='card-inner'>
-                                            <Tag style={{
-                                                borderRadius: '12px', display: 'flex', gap: '6px', alignItems: 'center'
-                                            }}><MdCheckCircle color='#D85A30'/><Text strong style={{
-                                                color: '#D85A30', fontSize: '10pt'
-                                            }}>{user.status}</Text></Tag>
-                                            <Tag style={{
-                                                borderRadius: '12px', display: 'flex', gap: '6px', alignItems: 'center'
-                                            }}><Text style={{color: '#D85A30'}} strong>{user.role_id}</Text></Tag>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
+    const approvedCount = requests.filter(b => b.status === 'Approved').length;
+    const rejectCount = requests.filter(b => b.status === 'Rejected').length;
+    const pendingCount = requests.filter(b => b.status === 'Pending').length;
 
-                        <Card 
-                        style={{
-                            margin: '20px 20px'
-                        }}
-                        hoverable title={<Title level={5} style={{color:'#D85A30',
-                            background: '#F5C4B3', padding: '10px 10px', borderRadius: '12px',
-                            margin:'10px'
-                        }}>Account details</Title>}>
-                            <Card style={{margin: '0px', padding: '0px'}}>
+    useEffect(() => {
+        fetchRecords();
+    }, []);
+
+    return (
+        <div style={{ background: '#232323' }}>
+            <div
+                style={{
+                    position: 'relative',
+                    marginBottom: '120px',
+                }}
+            >
+                <Card
+                    className='profile-bg'
+                    style={{
+                        background: '#b91c1c',
+                        height: '240px',
+                        borderRadius: '12px'
+                    }}
+                >
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: '10px',
+                    }}>
+                        <FaArrowLeft onClick={() => { navigate('/dashboard') }} style={{
+                            cursor: 'pointer'
+                        }} />
+                        <Title level={4}>Profile</Title>
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '20px',
+                        marginTop: '20px'
+                    }}>
+                        <Avatar size={80} shape='circle'
+                            style={{
+                                borderColor: 'white', border: '3px solid #fee2e2',
+                            }}
+                        >{getInitials(user.username)}</Avatar>
+                        <div>
+                            <Title level={4}>{user.username}</Title>
+                            <Text className='profile-text'>{user.email}</Text>
+                            <Tag style={{
+                                background: '#991b1b',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                width: '120px',
+                                borderRadius: '12px'
+                            }}>
+                                <TbShieldCheck color='#fee2e2' />
                                 <div style={{
                                     display: 'flex',
-                                    justifyContent: 'space-between'
-                                }} className='card'>
-                                    <div className='card-inner'>
-                                        <MdOutlineMail className='icon'/>
-                                        <Title level={5}>Email</Title>     
-                                    </div>
-                                    <Text className='text'>{user.email}</Text>
-                                </div>
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                }} className='card'>
-                                    <div className='card-inner'>
-                                        <FaPhone className='icon'/>
-                                        <Title level={5}>Phone</Title>     
-                                    </div>
-                                    <Text className='text'>{user.phone}</Text>
-                                </div>
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                }} className='card'>
-                                    <div className='card-inner'>
-                                        <FiShield className='icon'/>
-                                        <Title level={5}>Role</Title>     
-                                    </div>
-                                    <Text className='text'>{user.role_id} 
-                                        <Tag color={'#993C1D'} style={{background: '#F5C4B3',
-                                            borderRadius: '12px'
-                                        }}> 
-                                            <Text strong>  {user.role_name}</Text>    
-                                        </Tag></Text>
-                                </div>
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                }} className='card'>
-                                    <div className='card-inner'>
-                                        <CiCalendarDate className='icon' />
-                                        <Title level={5}>Member Since</Title>     
-                                    </div>
-                                    <Text className='text'>{formatDate(user.created_at)}</Text>
-                                </div>
-                            </Card> 
-                        </Card>
-                        <Card
-                        style={{
-                            margin: '20px 20px'
-                        }}
-                         title={<Title style={{color: '#D85A30',
-                            background: '#F5C4B3', padding: '10px 10px', borderRadius: '12px', margin: '10px'
-                        }} level={5}>Recent Activity</Title>}>
-                            {requests.map((request)=>(
-                                <div style={{
-                                    display: 'flex', alignItems:'center',
-                                    justifyContent: 'space-between',
-                                    padding: '10px'
+                                    alignItems: 'center',
+                                    gap: '10px',
                                 }}>
-                                    <div>
-                                        <Title style={{color: '#993C1D'}} level={5}>{request.request_id} - {request.book_name}</Title>
-                                    <div style={{display:'flex', alignItems: 'center', gap: '10px'}}>
-                                        <Text style={{color: '#993C1D'}} >User {request.user_id} - {request.borrow_days} days</Text>
-                                        <div style={{
-                                                width: '5px',
-                                                height:'5px',
-                                                borderRadius: '50%',
-                                                backgroundColor: '#993C1D'
-                                            }}>
-                                        
-                                        </div>            
-                                        <Text style={{color: '#993C1D'}} >Due {formatDate(user.created_at)}</Text>       
-                                    </div>
-                                    </div>
-                                    <div>
-                                        {request.status === 'Approved'? <Tag style={{background: '#F5C4B3',
-                                            borderRadius: '12px'
-                                        }}><Text
-                                        style={{
-                                            color: 'green'
-                                        }}>Approved</Text></Tag>
-                                        : request.status === 'Reject'? <Tag style={{background: '#F5C4B3',
-                                            borderRadius: '12px'
-                                        }}>
-                                            <Text style={{color: 'red'}}>Rejected</Text>
-                                        </Tag>: request.status === 'Pending'? <Tag style={{background: '#F5C4B3',
-                                            borderRadius: '12px'
-                                        }}>
-                                            <Text style={{color: '#ea580c'}}>Pending</Text></Tag>:
-                                        <Text>Request not found</Text>}
-                                    </div>
+                                    <Text className='profile-text'>{user.role_name}</Text>
+                                    <div style={{
+                                        width: '4px',
+                                        height: '4px',
+                                        borderRadius: '50%',
+                                        background: '#fef2f2'
+                                    }}></div>
+                                    <Text className='profile-text'>{user.role_id}</Text>
                                 </div>
-                            ))}
+                            </Tag>
+                        </div>
+                    </div>
+                </Card>
+                <div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '20px',
+                            position: 'absolute',
+                            bottom: '-280px',
+                            top: '0',
+                            left: '10%',
+                        }}
+                    >
+                        <Card className='pr-card' hoverable>
+                            <Title level={3} style={{
+                                color: 'red'
+                            }}>{requests.length}</Title>
+                            <Title level={5} style={{color: '#BFBFBF'}}>Total</Title>
+                        </Card>
+                        <Card className='pr-card' hoverable>
+                            <Title level={3} style={{
+                                color: 'green'
+                            }}>{approvedCount}</Title>
+                            <Title level={5} style={{color: '#BFBFBF'}}>Approved</Title>
+                        </Card>
+                        <Card className='pr-card' hoverable>
+                            <Title level={3} style={{
+                                color: '#991b1b'
+                            }}>{rejectCount}</Title>
+                            <Title level={5} style={{color: '#BFBFBF'}}>Rejected</Title>
+                        </Card>
+                        <Card className='pr-card' hoverable>
+                            <Title level={3} style={{
+                                color: '#ea580c'
+                            }}>{rejectCount}</Title>
+                            <Title level={5} style={{color: '#BFBFBF'}}>Pending</Title>
                         </Card>
                     </div>
-                </>
-            ) : (
-                <div>
-                    <Result
-                        title={<Title level={4}>User not found!</Title>}
-                    >
-                    </Result>
                 </div>
-            )}
+            </div>
+            <Card hoverable
+                style={{
+                    margin: '10px 14px',
+                    background: '#232323'
+                }}
+                title={
+                    <Title className='t-text' level={5} type='secondary'>Account Info</Title>
+                }
+            >
+                <div>
+                    <div
+
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px'
+                        }}>
+                        <div className='card-inner'>
+                            <CiMail className='pr-icon' />
+                            <Title level={5} style={{color: '#BFBFBF'}} type='secondary'>Email</Title>
+                            <div style={{
+                                marginLeft: '30px'
+                            }}>
+                                <Text strong style={{color: '#BFBFBF'}}>{user.email}</Text>
+                            </div>
+                        </div>
+                        <div className='card-inner'>
+                            <FaPhone className='pr-icon' />
+                            <Title level={5} type='secondary' style={{color: '#BFBFBF'}}>Phone</Title>
+                            <div style={{
+                                marginLeft: '23px'
+                            }}><Text style={{color: '#BFBFBF'}} strong>{user.phone}</Text></div>
+                        </div>
+                        <div className='card-inner'>
+                            <CiCalendarDate className='pr-icon' />
+                            <Title style={{color: '#BFBFBF'}} level={5} type='secondary'>Since</Title>
+                            <div style={{
+                                marginLeft: '30px'
+                            }}>
+                                <Text style={{color: '#BFBFBF'}} strong>{formatDate(user.created_at)}</Text>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+
+            <Card hoverable
+                style={{
+                    margin: '10px 14px',
+                    marginTop: '40px',
+                    background: '#2C2C2C'
+                }}
+                title={<Title type='secondary' style={{ color: '#b91c1c' }} level={5}>Activity timeline</Title>}
+                extra={<Text strong style={{ color: '#b91c1c' }}>View all</Text>}
+            >
+                <Row>
+                    <Col style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap:'12px'
+                    }}>
+                        {requests.map((request) => (
+                            <Card style={{
+                                padding: '2px 6px',
+                                background: '#2C2C2C',
+                                width: '80rem',
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <div>
+                                    <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'row',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}>
+                                    <div
+                                        style={{
+                                            width: '8px',
+                                            height: '8px',
+                                            borderRadius: '50%',
+                                            background:
+                                                request.status === 'Approved' ?
+                                                    '#15803d' :
+                                                    request.status === 'Rejected' ?
+                                                        '#b91c1c' :
+                                                        request.status === 'Pending' ?
+                                                            '#f97316' :
+                                                            '#991b1b'
+                                        }}
+                                    ></div>
+                                    <Title className='t-text' level={5}>{request.book_name}</Title>
+                                </div>
+
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                    margin: '4px 6px'
+                                }}>
+                                    <Text style={{
+                                        color: '#BFBFBF'
+                                    }} type='secondary'>{request.book_id}</Text>
+                                    <div className='dot'></div>
+                                    <Text style={{
+                                        color: '#BFBFBF'
+                                    }} type='secondary'>{request.borrow_days} days</Text>
+                                </div>
+                                </div>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '12px'
+                                }}>
+                                    <Text className='t-text' type='secondary'>Due {formatDate(request.due_date)}</Text>
+                                    <Text
+                                        style={{
+                                            color:
+                                                request.status === 'Approved' ?
+                                                    '#16a34a' :
+                                                    request.status === 'Rejected' ?
+                                                        '#b91c1c' :
+                                                        request.status === 'Pending' ?
+                                                            '#c2410c' :
+                                                            '#991b1b',
+                                            fontSize: '11pt',
+                                            fontWeight: '500'
+                                        }}
+                                    >{request.status}</Text>
+                                
+                                </div>
+                                </div>
+                            </Card>
+                        ))}
+                    </Col>
+                </Row>
+            </Card>
         </div>
     );
 };

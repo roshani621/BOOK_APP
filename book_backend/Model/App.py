@@ -8,6 +8,7 @@ from Notifications import notification_api
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
+
 app.register_blueprint(auth_api)
 app.register_blueprint(books_api)
 app.register_blueprint(borrow_request_api)

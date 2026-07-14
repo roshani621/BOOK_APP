@@ -55,11 +55,11 @@
 }
 
 .vb-text h5{
-    color: #b91c1c !important;
+    color: #d1d5db !important;
 }
 
 .vb-text .ant-typography{
-    color: #7f1d1d;
+    color: #d1d5db;
 }
 
 .request-btn{
@@ -83,12 +83,33 @@
     align-items: center;
     gap: 10px;
     font-size: 15px;
-    padding: 10px 10px;
-    color: #7f1d1d;
+    padding: 12px 16px;
+    color: #A8A29E;
     font-weight: 900px;
     cursor: pointer;
+    position: relative;
+}
+
+.sidebar-text.active{
+    background: #292524;
+}
+
+.sidebar-text.active::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    bottom: 1px;
+    width: 4px;
+    background: #B91C1C;
 }
 
 .sidebar-icon{
     font-size: 19px;
 }
+
+.d-button{
+    width: 150px;
+    font-weight: 900px;
+}
+

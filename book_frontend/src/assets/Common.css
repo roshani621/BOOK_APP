@@ -1,21 +1,52 @@
+/* Layout bg of all pages */
+
+.layout-bg{
+    background: #2C2C2C !important;
+    background-color: #2C2C2C !important;
+    min-height: 110vh;
+}
+
 .ant-table-thead > tr > th{
-    background: #D85A30 !important;
+    background: #b91c1c !important;
     color: white;
 }
 
 .table-container{
     margin-left: 30px;
-    color: #F5C4B3;
     border-radius: 12px;
+    background: #232323 !important;
 }
+.table-container:hover{
+    background-color: #232323 !important;
+}
+
 .custom-row td{
-    background: #F5C4B3;
+    background: #232323;
+    color: #ffffff;
+}
+
+.ant-table-tbody > tr > td {
+    transition: all 0.3s ease;
+}   
+
+.ant-table-tbody > tr:hover > td {
+    background: #404040 !important;
+    color: white !important;
+}
+
+.th-text{
+    color: #ffffff !important;
+    font-size: 15px;
+    font-weight: 400;
+}
+.t-text{
+    color: #ffffff !important;
 }
 
 .request-card .card{
     min-width: 300px;
 }
-.card{
+/* .card{
     width: 100%;
     min-height: 50px;
     border-color: #F5C4B3;
@@ -46,4 +77,70 @@
 }
 .card-h .text-h{
     color: #712B13;
+} */
+
+.br-card{
+    width: 250px;
+    border-color: #DC2626;
+}
+
+.br-card h4{
+    margin: 10px;
+    margin-left: 20px;
+}
+
+.av-bg{
+    color: #DC2626;
+    background-color: #fecaca;
+    text-align: center !important;
+}
+
+.br-card-head{
+    display: flex;
+    align-items: center !important;
+    gap: 10px;
+}
+
+.card-inner{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-bg h4{
+    color: #fef2f2 !important;
+}
+
+.profile-text{
+    color: #fef2f2;
+}
+
+.pr-card{
+    width: 250px;
+    text-align: center;
+    margin: 0px;
+    padding: 0px;
+    background: #232323;
+    border-radius: 20px;
+}
+
+.pr-icon{
+    color: #DC2626;
+    font-size: 22px !important;
+}
+
+.dot{
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: grey;
+}
+
+.ant-form-item-label > label{
+    color: #BFBFBF !important;
+    font-size: 16px !important;
+}
+
+.ant-input::placeholder{
+    color: grey;
 }

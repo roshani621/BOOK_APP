@@ -1,14 +1,33 @@
 import React from 'react';
-import { Layout, Typography } from 'antd'
-import { CgMenuGridO } from "react-icons/cg";
+import { useEffect, useState } from 'react';
+import { Avatar, Layout, Typography } from 'antd'
+import { TbBooks } from "react-icons/tb";
 import { FaUserCircle } from "react-icons/fa";
 import { GoBell } from "react-icons/go";
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 
 const { Header } = Layout;
-const {Title} = Typography;
+const {Title, Text} = Typography;
 const Navtab = ({ onMenuClick }) => {
+
+    const [name, setName] = useState({});
+
+    const getInitials = (name) => {
+        return name?.split(' ').map(word => word[0]).join('').toUpperCase();
+    }
+    const user_id = localStorage.getItem('b_user_id');
+    useEffect(() => {
+            const fetchUserProfile = async () => {
+                try {
+                    const res = await axios.get(`http://127.0.0.1:5000/user-profile/${user_id}`);
+                    setName(res.data.user)
+                } catch (err) {
+                    console.log(err);
+                }
+            }
+            fetchUserProfile();
+        }, []);
 
     const navigate = useNavigate();
     return (
@@ -16,7 +35,7 @@ const Navtab = ({ onMenuClick }) => {
             <Layout>
             <Header 
             style={{
-                    background: '#001529',
+                    background: '#1C1917',
                     padding: '0 24px',
                     height: '70px',
                     display: 'flex',
@@ -28,10 +47,20 @@ const Navtab = ({ onMenuClick }) => {
                         alignItems: 'center',
                         gap: '20px'
                     }}>
-                        <CgMenuGridO style={{ color: 'white', cursor:'pointer' }} size={28} onClick={onMenuClick} />
+                        <Avatar shape='square' size={42} style={{
+                            background: '#dc2626',textAlign: 'center',
+                            boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
+                            borderRadius: '10px', padding: '10px', 
+                        }} 
+                        onClick={onMenuClick}
+                        >
+                            <TbBooks style={{ color: '#ffffff', cursor:'pointer',
+                            marginTop: '5px'
+                             }} size={22}  />
+                        </Avatar>
                         <Title level={4} style={{
-                            color: 'white', marginTop: '10px'
-                        }}>Library Dashboard</Title>
+                            color: '#ffffff', marginTop: '10px'
+                        }}>Library</Title>
                     </div>
                     <div 
                     style={{
@@ -39,11 +68,20 @@ const Navtab = ({ onMenuClick }) => {
                         alignItems: 'center',
                         gap: '20px'
                     }}>
-                        <GoBell style={{color: 'white', cursor: 'pointer'}} size={30}
+
+                        <GoBell style={{color: '#ffffff', cursor: 'pointer'}} size={26}
                         onClick={()=>{navigate('/notification')}}
                         />
-                        <FaUserCircle style={{ color: 'white', cursor:'pointer' }} size={30} 
-                        onClick={()=>{navigate('/profile')}} />
+                        <Avatar onClick={()=>{navigate('/profile')}} style={{
+                            background: '#fecaca',
+                            cursor: 'pointer'
+                        }}>
+                            <Text style={{
+                                color: '#dc2626'
+                            }}>
+                                {getInitials(name.username)}
+                            </Text>
+                        </Avatar>
                     </div>
                 
             </Header>

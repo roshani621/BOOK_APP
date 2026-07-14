@@ -1,6 +1,11 @@
 from flask import Blueprint, jsonify, request
-from DB import book_col, borrow_request_col, user_col
+from DB import book_col, borrow_request_col, user_col, db, notification_col
 from datetime import datetime, timedelta
+# from gridfs import GridFS
+import random
+
+
+# fs=GridFS(db)
 
 books_api = Blueprint('books', __name__)
 
@@ -18,8 +23,9 @@ def get_books():
         "available_copies": 1,
         "image": 1,
         "rating": 1,
-        "short_description": 1,
-        "publish_date": 1
+        "description": 1,
+        "publish_date": 1,
+        "published_by": 1
     })
 
     book_list = []
@@ -122,3 +128,151 @@ def BooksCount():
         "approved_requests": approved_request,
         "total_users": total_user
     }), 200
+
+
+#Add books
+
+@books_api.route('/add-book', methods=['POST'])
+def Add_Book():
+    try:
+        data = request.get_json()
+        count = book_col.count_documents({})
+        book_id = f"B{count + 1}"
+
+        # isbn = str(random.randint(10**12, 10**13 - 1))
+
+        # image = request.files['image']
+
+        # image_id = fs.put(
+        #     image,
+        #     filename = image.filename,
+        #     content_type = image.content_type
+        # )
+
+        book = {
+            "id": book_id,
+            "book_name": data.get("book_name", ""),
+            "author": data.get("author", ""),
+            "category": data.get("category", ""),
+            "image": data.get("image", ""),
+            "isbn": data.get("isbn", ""),
+            "total_pages": int(data.get("total_pages", 0)),
+            "available_copies": int(data.get("available_copies", 0)),
+            "total_copies": int(data.get("total_copies", 0)),
+            "rating": float(data.get("rating", 0)),
+            "description": data.get("description", ""),
+            "publish_date": data.get("publish_date", ""),
+            "published_by": data.get("published_by", "")
+        }
+
+        book_col.insert_one(book)
+        
+        notification_col.insert_one({
+            "notification_id": f"NTF{random.randint(1000,9999)}",
+            "category": "Book Updates",
+            "type": "book_added",
+            "title": "New Book Added",
+            "message": f"{book['book_name']} has been added to the library.",
+            "book_id": book_id,
+            "book_name": book["book_name"],
+            "author": book["author"],
+            "publisher": book["published_by"],
+            "rating": book["rating"],
+            "total_copies": book["total_copies"],
+            "available_copies": book["available_copies"],
+            "status": "Added",
+            "actions": ["View Book"],
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        })
+        
+        return jsonify({
+            "success": True,
+            "message": "Book added successfully",
+            "book_id": book_id
+        }), 201
+    
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+    
+
+#Update Book
+
+@books_api.route('/update-book', methods=['PUT'])
+def Update_Book():
+    try:
+        
+        data = request.get_json()
+
+        book_id = data.get("id")
+    
+        # image = request.files['image']
+
+        # image_id = fs.put(
+        #     image,
+        #     filename = image.filename,
+        #     content_type = image.content_type
+        # )
+        
+        book = {
+            "book_name": data.get("book_name"),
+            "author": data.get("author"),
+            "category": data.get("category"),
+            "isbn": data.get("isbn"),
+            "image": data.get("image"),
+            "total_pages": int(data.get("total_pages",0)),
+            "available_copies": int(data.get("available_copies",0)),
+            "total_copies": int(data.get("total_copies",0)),
+            "rating": float(data.get("rating",0)),
+            "description": data.get("description"),
+            "publish_date": data.get("publish_date"),
+            "published_by": data.get("published_by"),
+            "updated_date": datetime.utcnow()
+        }
+
+        result = book_col.update_one({"id": book_id}, {"$set": book})
+        print(book)
+
+        if result.matched_count == 0:
+            return jsonify({
+                "success": False,
+                "message": "Book not found"
+            }), 404
+        
+        created_time = datetime.utcnow()
+
+        notification = {
+            "notification_id": f"NTF{random.randint(1000,9999)}",
+            "category": "Book Updates",
+            "type": "book_updated",
+            "title": "Book Updated",
+            "message": f'{book["book_name"]} book details has been updated successfully.',
+            "book_id": book_id,
+            "book_name": book["book_name"],
+            "author": book["author"],
+            "publisher": book["published_by"],
+            "rating": book["rating"],
+            "total_copies": book["total_copies"],
+            "available_copies": book["available_copies"],
+            "status": "Updated",
+            "actions": ["View Book"],
+            "is_read": False,
+            "created_at": created_time
+        }
+        notification_col.insert_one(notification)
+
+
+        return jsonify({
+            "success": True,
+            "message": "Book updated successfully",
+            "book_id": book_id
+        }), 200
+    
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500

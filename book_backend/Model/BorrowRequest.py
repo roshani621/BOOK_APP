@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
-from DB import book_col, borrow_request_col
+from DB import book_col, borrow_request_col, notification_col, user_col
 from datetime import datetime, timedelta
+import random
 
 borrow_request_api = Blueprint("borrow_request_api", __name__)
 
@@ -41,7 +42,7 @@ def BookBorrow():
                 "_id":1,
                 "request_id": 1,
                 "book_id":1,
-                "user_id": 1, 
+                "user_id": 1,
                 "book_name": "$book_data.book_name",
                 "author": "$book_data.author",
                 "category": "$book_data.category",
@@ -52,7 +53,8 @@ def BookBorrow():
                 "request_date": 1,
                 "borrow_days":1,
                 "status": 1,
-                "created_at": 1
+                "created_at": 1,
+                "due_date": 1
             }
         }
     ]
@@ -75,7 +77,7 @@ def RequestStatus():
     request_status = data.get("request_status")
     request_id = data.get("request_id")
     user_id = data.get("user_id")
-    book_id = data.get("book_id")   # ✅ FIXED
+    book_id = data.get("book_id")   
     remark = data.get("remark")
     approved_date = datetime.utcnow()
 
@@ -85,6 +87,8 @@ def RequestStatus():
         return jsonify({"message": 'Request not found'}), 404
 
     book = book_col.find_one({"id": book_id})
+    user = user_col.find_one({"id": request_data["user_id"]})
+
 
     if not book:
         return jsonify({"message": "Book not found"}), 404
@@ -109,6 +113,27 @@ def RequestStatus():
             {"$inc": {"available_copies": -1}}
         )
 
+        notification_col.insert_one({
+            "notification_id": f"NTF{random.randint(1000,9999)}",
+            "category": "Borrow Requests",
+            "type": "borrow_request",
+            "title": "New Borrow Request",
+            "request_id": request_id,
+            "borrow_id": request_id,
+            "user_id": user_id,
+            "book_id": book_id,
+            "book_name": book["book_name"],
+            "member_name": user["username"],
+            "due_date": book["due_date"],
+            "message": f"{user['username']} requested '{book['book_name']}'.",
+            "status": "Approved",
+            "actions": [
+                "View Details"
+            ],
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        })
+
         return jsonify({"message": "Request Approved"}), 200
 
     elif request_status == 'Rejected':
@@ -123,6 +148,27 @@ def RequestStatus():
                 "updated_at": datetime.utcnow()
             }}
         )
+
+        notification_col.insert_one({
+            "notification_id": f"NTF{random.randint(1000,9999)}",
+            "category": "Borrow Requests",
+            "type": "borrow_request",
+            "title": "New Borrow Request",
+            "request_id": request_id,
+            "borrow_id": request_id,
+            "user_id": user_id,
+            "book_id": book_id,
+            "book_name": book["book_name"],
+            "member_name": user["username"],
+            "due_date": book["due_date"],
+            "message": f"{user['username']} requested '{book['book_name']}'.",
+            "status": "Rejected",
+            "actions": [
+                "View Details"
+            ],
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        })
 
         return jsonify({"message": "Request Rejected"}), 200
 
@@ -160,6 +206,7 @@ def BookRecords():
             "$project": {
                 "_id":1,
                 "request_id": 1,
+                "remark": 1,
                 "book_id":1,
                 "user_id": 1, 
                 "book_name": "$book_data.book_name",

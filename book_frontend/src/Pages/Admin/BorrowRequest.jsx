@@ -1,14 +1,22 @@
-import { Card, Typography, Input, Button, Modal, Result, Row, Col, Avatar } from 'antd';
+import { Card, Typography, Input, Button, Modal, Result, Row, Col, Avatar, Tag, Divider, Badge,
+    notification
+ } from 'antd';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Navtab from '../../Components/Navtab';
 import Sidebar from '../../Components/Sidebar';
-import { LuUserRound } from "react-icons/lu";
-import { PiBooks } from "react-icons/pi";
+import { HiOutlineDocumentText } from "react-icons/hi2";
+import { CiCalendarDate } from "react-icons/ci";
 import { LuCalendarDays } from "react-icons/lu";
 import { HiOutlineIdentification } from "react-icons/hi2";
 import { CiClock1 } from "react-icons/ci";
+import { MdOutlineCancel } from "react-icons/md";
+import { GoCheckCircleFill } from "react-icons/go";
+
 import '../../assets/Common.css';
+import { IoNotifications, IoNotificationsOutline } from 'react-icons/io5';
+import { getAPI, postAPI } from '../../APIS/api';
+import API from '../../APIS/endpoints';
 
 
 const { Text, Title } = Typography;
@@ -18,7 +26,7 @@ const BorrowRequest = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [remark, setRemark] = useState('');
     const [open, setOpen] = useState(false);
-
+    const [count, setCount] = useState(0);
     const showDrawer = () => setOpen(true);
     const closeDrawer = () => setOpen(false);
 
@@ -29,9 +37,15 @@ const BorrowRequest = () => {
 
     const fetchRequest = async () => {
         try {
-            const res = await axios.get('http://127.0.0.1:5000/borrow-request');
+            const res = await getAPI(API.BORROW_REQUEST);
             console.log(res.data.request);
             setBooks(res.data.request);
+
+            const pendingCount = res.data.request.filter(
+                item=> item.status === 'Pending'
+            ).length;
+            setCount(pendingCount);
+            console.log(pendingCount)
         } catch (err) {
             console.log(err);
         }
@@ -43,12 +57,11 @@ const BorrowRequest = () => {
     }
 
     const user_id = localStorage.getItem("b_user_id");
-    console.log(user_id)
 
     const handleApproved = async (requestStatus, request_id, book_id) => {
         try {
             console.log(requestStatus, request_id, book_id);
-            const res = await axios.post('http://127.0.0.1:5000/request', {
+            const res = await postAPI(API.REQUEST, {
                 request_status: requestStatus,
                 request_id: request_id,
                 user_id: user_id,
@@ -56,7 +69,6 @@ const BorrowRequest = () => {
             });
             console.log(requestStatus, request_id, user_id, book_id);
             console.log(res.data);
-            alert(res.data.message);
             fetchRequest();
         } catch (err) {
             console.log(err);
@@ -70,199 +82,274 @@ const BorrowRequest = () => {
                 return;
             }
             const user_id = localStorage.getItem("b_user_id");
-            const res = await axios.post('http://127.0.0.1:5000/request', {
-                request_status: requestStatus,
-                request_id: request_id,
-                user_id: user_id,
-                book_id: book_id,
-                remark: remark
+            const res = await postAPI(
+                API.REQUEST, 
+                {
+                    request_status: requestStatus,
+                    request_id: request_id,
+                    user_id: user_id,
+                    book_id: book_id,
+                    remark: remark
             });
             console.log(res.data);
-            alert(res.data.message);
+            setIsModalOpen(false);
+            setRemark('');
+            fetchRequest();
         } catch (err) {
             console.log(err);
         }
     }
 
+    const getInitials = (name) => {
+        return name?.split(' ').map(word => word[0]).join('').toUpperCase();
+    }
+
+    const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+    console.log(count)
+
     useEffect(() => {
         fetchRequest();
     }, [])
     return (
-        <div style={{ background: '#FAECE7' }}>
+        <div className='layout-bg'>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
-            <div style={{ marginTop: '20px' }}>
+            <div style={{ marginTop: '20px', background: '#2C2C2C'  }}>
                 {books.length > 0 ? (
                     <>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            margin: '10px 20px',
+                            gap: '10px'
+                        }}>
+                            <Title style={{color: '#ffffff'}} level={5}>Borrow Request</Title>
+                           <Badge count={count} size='small'>  
+                            <IoNotificationsOutline size={24}
+                                style={{ color: "#fff", cursor: "pointer" }}/>
+                           </Badge>
+                        </div>
                         {books.map((book) => (
-                            <div>
-                                <Row>
-                                    <Col>
-                                        <Card
-                                            hoverable
-                                            style={{
-                                                borderRadius: '12px',
-                                                background: '#FFFFFF',
-                                                borderColor: '#E8C4B0',
-                                                overflow: 'hidden',
-                                                margin: '20px'
-                                            }}
-                                        >
+                            <Row>
+                                <Col span={24}>
+                                    <Card hoverable style={{
+                                        width: '90em', background: '#2C2C2C',
+                                        margin: '20px 40px', position: 'relative', borderRadius: '12px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <div style={{
+                                            position: 'absolute',
+                                            width: '8px',
+                                            height: '100%',
+                                            background: '#dc2626',
+                                            top: '0',
+                                            left: '0',
+                                            borderRadius: '12px'
+                                        }}></div>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'start',
+                                            padding: '20px',
+                                            background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                                            borderRadius: '12px',
+                                            borderLeftColor: '#dc2626'
+
+                                        }}>
                                             <div style={{
                                                 display: 'flex',
+                                                alignItems: 'center',
                                                 gap: '20px',
-                                                alignItems: 'stretch'
+
                                             }}>
-                                                <div style={{
-                                                    width: '7px',
-                                                    minHeight: '100%',
-                                                    background: '#D85A30',
-                                                    border: '1px solid #D85A30',
-                                                    position: 'absolute',
-                                                    left: '0%',
-                                                    top: '0%',
-                                                    borderRadius: '18px'
-                                                }} />
-
-
-                                                <div style={{flex: '1'}}>
-                                                    <Card>
-                                                        <div style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            gap: '20px'
-                                                        }}>
-                                                            <div>
-                                                                <img src={book.image} alt={book.title}
-                                                                    style={{
-                                                                        width: '100%', height: '180px', objectFit: 'contain',
-                                                                        borderRadius: '12px'
-                                                                    }} />
-                                                            </div>
-
-                                                            <div className='card-h'>
-                                                                <Title level={4}>{book.book_name}</Title>
-                                                                <div style={{
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    gap: '10px'
-                                                                }}>
-                                                                    <Text className='text-h' type='secondary'>{book.author}</Text>
-                                                                    <span style={{
-                                                                        width: '6px',
-                                                                        height: '6px',
-                                                                        borderRadius: '50%',
-                                                                        background: '#712B13',
-                                                                        display:'inline-block'
-                                                                    }}></span>
-                                                                    <Text className='text-h' type='secondary'>{book.category}</Text>
-                                                                </div>
-
-                                                                <Card hoverable style={{
-                                                                    borderRadius: '12px',
-                                                                    background: '#F5C4B3',
-                                                                    width: '500px'
-                                                                }}>
-                                                                    <div style={{
-                                                                        display: 'flex', alignItems: 'center',
-                                                                        gap: '20px'
-                                                                    }}>
-                                                                        <Avatar size={55} icon={<LuUserRound />} ></Avatar>
-                                                                        <div style={{
-                                                                            margin: '0px'
-                                                                        }}>
-                                                                            <Title level={5}>{book.username}</Title>
-                                                                            <Text type='secondary'>{book.email}</Text>
-                                                                        </div>
-                                                                    </div>
-                                                                </Card>
-                                                            </div>
-
-                                                        </div>
-                                                    </Card>
-                                                    <div style={{
-                                                        display: 'grid',
-                                                        gridTemplateColumns: 'repeat(2, 1fr)',
-                                                        gap: '20px',
-                                                    }} className='request-card'>
-
-                                                        <Card className='card'>
-                                                            <div className='card-inner'>
-                                                                <PiBooks className='icon' />
-                                                                <Title level={5}>Available Copies</Title>
-                                                            </div>
-                                                            <div className='card-inner'>
-                                                                <Title level={5}>{book.available_copies}</Title>
-                                                                <Text className='text'>copies</Text>
-                                                            </div>
-                                                        </Card>
-
-                                                        <Card className='card'>
-                                                            <div className='card-inner'>
-                                                                <LuCalendarDays className='icon' />
-                                                                <Title level={5}>Borrow Days</Title>
-                                                            </div>
-                                                            <div className='card-inner'>
-                                                                <Title level={5}>{book.borrow_days}</Title>
-                                                                <Text className='text'>days</Text>
-                                                            </div>
-                                                        </Card>
-
-                                                        <Card className='card'>
-                                                            <div className='card-inner'>
-                                                                <HiOutlineIdentification className='icon' />
-                                                                <Title level={5}>Request ID</Title>
-                                                            </div>
-                                                            <div className='card-inner'>
-                                                                <Title level={5}>{book.request_id}</Title>
-                                                            </div>
-                                                        </Card>
-
-                                                        <Card className='card'>
-                                                            <div className='card-inner'>
-                                                                <LuCalendarDays className='icon' />
-                                                                <Title level={5}>Request Date</Title>
-                                                            </div>
-                                                            <div className='card-inner'>
-                                                                <Title level={5}>{book.request_date}</Title>
-                                                            </div>
-                                                        </Card>
-                                                    </div>
-
-                                                    <div style={{
-                                                        marginTop: '30px'
+                                                <div><img src={book.image} alt={book.book_name}
+                                                    style={{
+                                                        width: '90px',
+                                                        height: '130px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '16px'
+                                                    }}
+                                                /> </div>
+                                                <div>
+                                                    <Title style={{ color: 'white' }} level={4}>{book.book_name}</Title>
+                                                    <Text style={{ color: 'white' }}
+                                                        type='secondary'>{book.author}</Text>
+                                                    <div className='br-card-head' style={{
+                                                        marginTop: '20px'
                                                     }}>
-                                                        <Card className='card'>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                <div>
-                                                                    <div className='card-inner'>
-                                                                        <CiClock1 className='icon' />
-                                                                        <Title level={5}>Created At</Title>
-
-                                                                    </div>
-                                                                    <Text strong className='text'>{book.created_at}</Text>
-
-                                                                </div>
-                                                                <div style={{ fontWeight: '800px' }}>
-                                                                    <Button variant='solid' style={{
-                                                                        borderColor: '#993C1D', color: 'green'
-                                                                    }}
-                                                                        onClick={() => handleApproved("Approved", book.request_id, book.book_id)}
-                                                                    >Approved</Button>
-                                                                    <Button variant='solid' style={{
-                                                                        marginLeft: '30px', borderColor: '#993C1D',
-                                                                        color: 'red'
-                                                                    }} onClick={() => handleRejectClick(book.request_id, book.book_id)}>Reject</Button>
-                                                                </div>
-                                                            </div>
-                                                        </Card>
+                                                        <Tag
+                                                            style={{
+                                                                borderRadius: '12px',
+                                                                borderColor: '#fca5a5',
+                                                                backgroundColor: '#fca5a5',
+                                                                color: '#991b1b',
+                                                                fontWeight: '600'
+                                                            }}
+                                                        >{book.category}</Tag>
+                                                        <Tag style={{
+                                                            borderRadius: '12px',
+                                                            backgroundColor: '#232323',
+                                                            color: '#ffffff',
+                                                            fontWeight: '600',
+                                                        }}>{book.available_copies} copies available</Tag>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div>
+                                                <Tag
+                                                    style={{
+                                                        borderColor: '#fca5a5',
+                                                        backgroundColor: '#fca5a5',
+                                                        color: '#991b1b',
+                                                        fontWeight: '700',
+                                                        borderRadius: '12px'
+                                                    }}
+                                                >
+                                                    {book.status}
+                                                </Tag>
+                                            </div>
+                                        </div>
+
+                                        <Card hoverable style={{
+                                            margin: '10px 20px',
+                                            backgroundColor: '#232323',
+                                            borderColor: '#232323',
+                                            height: '80px',
+                                            padding: '10px 20px',
+                                            marginTop: '20px'
+                                        }} bodyStyle={{ padding: '0' }}>
+                                            <div className='br-card-head'>
+                                                <div>
+                                                    <Avatar size={50}>
+                                                        <Text strong type='secondary' style={{
+                                                            color: '#dc2626', textAlign: 'center'
+                                                        }}
+                                                        >{getInitials(book.username)}</Text></Avatar>
+                                                </div>
+                                                <div style={{
+                                                    margin: '0px',
+                                                    padding: '0px'
+                                                }}>
+                                                    <Title style={{ color: '#ffffff' }} level={5}>{book.username}</Title>
+                                                    <Text style={{ color: '#ffffff' }} >{book.email}</Text>
+                                                </div>
+                                            </div>
                                         </Card>
-                                    </Col>
-                                </Row>
-                            </div>
+
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(3, 1fr)',
+                                            gap: '20px',
+                                            marginTop: '30px'
+                                        }}>
+                                            <Card hoverable style={{
+                                                backgroundColor: '#232323',
+                                                borderColor: '#232323',
+                                            }}>
+                                                <div className='br-card-head'>
+                                                    <HiOutlineDocumentText color='#ffffff' />
+                                                    <Text style={{
+                                                        color: '#ffffff'
+                                                    }} type='secondary' strong>REQUEST</Text>
+                                                </div>
+                                                <Title style={{
+                                                    color: '#ffffff'
+                                                }} level={5}>{book.request_id}</Title>
+                                            </Card>
+                                            <Card hoverable style={{
+                                                backgroundColor: '#232323',
+                                                borderColor: '#232323',
+                                            }}>
+                                                <div className='br-card-head'>
+                                                    <CiCalendarDate color='#ffffff' />
+                                                    <Text style={{
+                                                        color: '#ffffff'
+                                                    }} type='secondary' strong>DURATION</Text>
+                                                </div>
+                                                <Title style={{
+                                                    color: '#ffffff'
+                                                }} level={5}>{book.borrow_days} days</Title>
+                                            </Card>
+                                            <Card hoverable style={{
+                                                backgroundColor: '#232323',
+                                                borderColor: '#232323',
+                                            }}>
+                                                <div className='br-card-head'>
+                                                    <CiCalendarDate color='#ffffff' />
+                                                    <Text style={{
+                                                        color: '#ffffff'
+                                                    }} type='secondary' strong>DUE</Text>
+                                                </div>
+                                                <Title style={{
+                                                    color: '#ffffff'
+                                                }} level={5}>{formatDate(book.due_date)}</Title>
+                                            </Card>
+                                        </div>
+
+                                        <Card hoverable style={{
+                                            backgroundColor: '#232323',
+                                            borderColor: '#232323',
+                                            marginTop: '30px'
+                                        }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: '10px',
+                                                margin: '12px 16px'
+                                            }}>
+                                                <div className='br-card-head'>
+                                                    <CiClock1 color='#ffffff' />
+                                                    <Text style={{
+                                                        color: '#ffffff'
+                                                    }}>{book.created_at}</Text>
+                                                </div>
+
+                                                <div className='br-card-head'>
+                                                    <Button style={{
+                                                        background: '#232323',
+                                                        color: '#ffffff',
+                                                        fontWeight: '500'
+                                                    }}
+                                                    onClick={()=>
+                                                        handleRejectClick(
+                                                            book.request_id,
+                                                            book.book_id
+                                                        )
+                                                    }
+                                                    >
+                                                        Reject
+                                                    </Button>
+                                                    <Button style={{
+                                                        background: '#dc2626',
+                                                        color: '#ffffff',
+                                                        fontWeight: '500'
+                                                    }}
+                                                    onClick={()=>
+                                                        handleApproved(
+                                                            "Approved",
+                                                            book.request_id,
+                                                            book.book_id
+                                                        )
+                                                    }
+                                                    >
+                                                        Approve
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Card>
+
+                                    </Card>
+                                </Col>
+                            </Row>
                         ))}
                     </>
                 ) : (<div>

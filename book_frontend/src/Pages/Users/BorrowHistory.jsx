@@ -5,18 +5,15 @@ import React, { useEffect, useState } from 'react';
 import '../../assets/Common.css';
 import Navtab from '../../Components/Navtab';
 import Sidebar from '../../Components/Sidebar';
+import { getAPI } from '../../APIS/api';
+import API from '../../APIS/endpoints';
 
-const {Text} = Typography;
+const {Text, Title} = Typography;
 const BorrowHistory = () => {
 
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
-    const [selectedStatus, setSelectedStatus] = useState({
-        "All": '',
-        "Approved": '',
-        "Rejected": '',
-        "Pending": ''
-    });
+    const [selectedStatus, setSelectedStatus] = useState("All");
     const [open, setOpen] = useState(false);
     
     const showDrawer = () => setOpen(true);
@@ -24,11 +21,16 @@ const BorrowHistory = () => {
 
     const fetchRequest = async() =>{
         try{
-            const res = await axios.get("http://127.0.0.1:5000/borrow-records");
+            const res = await getAPI(API.BORROW_RECORDS);
             const newData = res.data.request;
-            setData(newData);
 
-            setFilteredData(res.data.request);
+            const userId = localStorage.getItem('b_user_id');
+            const userRecords = res.data.request.filter(
+                item=>item.user_id === userId
+            );
+
+            setData(userRecords);
+            setFilteredData(userRecords);
         }catch(err){
             console.log(err);
         }
@@ -38,93 +40,69 @@ const BorrowHistory = () => {
         fetchRequest()
     },[]);
 
-    const filterRecords = ["All","Pending", "Approved", "Rejected"];
-
-    const menuClick = (e) =>{
-        const status = e.key;
-        setSelectedStatus(status);
-        console.log(status)
-        if(status === 'All'){
-            setFilteredData(data);
-        } else{
-            setFilteredData(
-                data.filter(book => book.status === status)
-            )
-        }
-    }
-    const items = [
-        {
-            key: 'filter1',
-            label: 'Filter',
-            icon: <FaFilter />,
-            children: filterRecords.map((status)=>({
-                key: status,
-                label: status
-            }))
-        }
-    ]
+    
 
     const columns = [
         {
-            title: 'Book',
+            title: <Text className='th-text'>Book</Text >,
             key: 'book',
             align: 'center',
             render: (_, record)=>(
-                <div>
-                    <Text>{record.title}</Text><br />
-                    <Text type='secondary'>{record.author}</Text>
+                <div style={{color: 'white'}}>
+                    <Text className='t-text'>{record.book_name}</Text><br />
+                    <Text className='t-text' type='secondary'>{record.author}</Text>
                 </div>
             )
         },{
-            title: 'User',
+            title: <Text className='th-text'>User</Text >,
             key: 'user',
             align: 'center',
             render: (_, record)=>(
-                <div>
-                    <Text>{record.username}</Text><br />
-                    <Text type='secondary'>{record.email}</Text>
+                <div style={{color: 'white'}}>
+                    <Text className='t-text'>{record.username}</Text><br />
+                    <Text className='t-text' type='secondary'>{record.email}</Text>
                 </div>
             )
         },{
-            title: 'Date',
+            title: <Text className='th-text'>Request Date</Text >,
             key: 'date',
             align: 'center',
             render: (_, record)=>(
                 <div>
-                    <Text>{new Date(record.request_date).toLocaleDateString()}</Text>
+                    <Text className='t-text'>{new Date(record.request_date).toLocaleDateString()}</Text>
                 </div>
             )
         },{
-            title: 'Days',
+            title: <Text className='th-text'>Borrow Days</Text >,
             dataIndex: 'borrow_days',
             key: 'days',
             align: 'center'           
         },{
-            title: 'Status',
+            title: <Text className='th-text'>Status</Text >,
             dataIndex: 'status',
             key: 'status',
             align: 'center',
             render: (status)=>{
-                let color = 'gold';
+                let color = '#d97706';
 
-                if(status === 'Approved') color = 'green';
-                else if(status === 'Rejected') color = 'red';
+                if(status === 'Approved') color = '#16a34a';
+                else if(status === 'Rejected') color = '#b91c1c';
 
-                return <Tag color={color} style={{fontSize: '16px',
-                    background: '#F5C4B3'
+                return <Tag color={color} style={{fontSize: '12px',
+                    borderRadius: '14px', background: '#d4d4d8'
                 }}>{status}</Tag>
             }
         },
         {
-            title: 'Created Date',
+            title: <Text className='th-text'>Created At</Text >,
             key: 'created_at',
             align: 'center',
             render: (_, record)=>(
-                <Text>{new Date(record.created_at).toLocaleString()}</Text>
+                <Text className='t-text'>{new Date(record.created_at).toLocaleString()}</Text>
             )
         },
         {
-            title: 'Action Date',
+            title: <Text className='th-text'>Action Date</Text >,
             key: 'action_date',
             align: 'center',
             render: (_, record) => {
@@ -142,41 +120,53 @@ const BorrowHistory = () => {
                     return (
                         <Text style={{ color: 'red' }}>
                             {record.approved_date 
-                                ? new Date(record.approved_date).toLocaleString()
+                                ? <Text className='t-text'>{record.remark}</Text>
                                 : '-'}
                         </Text>
                     );
                 }
 
-                return <Text type="secondary">Pending</Text>;
+                return <Text className='t-text' type="secondary">Pending</Text>;
             }
         },
         {
-            title: 'Due Date',
+            title: <Text className='th-text'>Due Date</Text >,
             key: 'due_date',
             align: 'center',
             render: (_, record)=>(
-                <Text>{new Date(record.due_date).toLocaleString()}</Text>
+                <Text className='t-text'>{new Date(record.due_date).toLocaleString()}</Text>
             )
         }
     ]
     return (
-        <div style={{background: '#FAECE7', minHeight: '100vh'}}>
+        <div style={{background: '#2C2C2C', minHeight: '100vh'}}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
             <div>
-                <Menu
-                onClick={menuClick}
-                defaultOpenKeys={['filter1']}
-                selectedKeys={[selectedStatus]}
-                items={items}
-                placement={['bottomEnd']}
-                mode='inline'
-                style={{
-                    width: '200px',
-                    margin: '40px',
-                }}
-                />
+                <div>
+                    {["All", "Pending", "Approved", "Rejected"].map((status, index) => (
+                    <Tag
+                        key={status}
+                        style={{
+                            cursor: 'pointer',
+                            color: selectedStatus === status ? '#ffffff' : '#d1d5db',
+                            background: selectedStatus === status ? '#dc2626' : '#3f3f46',
+                            fontSize: '13px', borderRadius: '999px', padding: '4px 12px',
+                            fontWeight: '500px', margin: '20px 10px'
+                        }}
+                        onClick={() => {
+                            setSelectedStatus(status);
+
+                            if(status === "All"){
+                                setFilteredData(data);
+                            } else {
+                                setFilteredData(
+                                    data.filter(book=>book.status === status)
+                                )
+                            }
+                        }}
+                    >{status}</Tag>))}                                    
+                </div>
             </div>
             <div>
                 <Row>

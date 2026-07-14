@@ -32,7 +32,9 @@ def login():
     if not user:
         return jsonify({"message":"User not found"})
     
-    if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+    if bcrypt.checkpw(password.encode('utf-8'), 
+                      user['password'].encode('utf-8')
+                    ):
         return jsonify({"message": "Login Successful", "user": user}), 200
     else:
         return jsonify({"message": "Invalid Credential"}), 401
