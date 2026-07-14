@@ -70,7 +70,7 @@ const ViewBooks = () => {
                 </div>
                 <div>
                     <Title level={4} style={{
-                        fontWeight: '600px', color: '#BFBFBF/sn'
+                        fontWeight: '600px', color: '#BFBFBF'
                     }}>My Library</Title>
                 </div>
 

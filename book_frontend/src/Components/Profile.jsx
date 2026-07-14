@@ -115,7 +115,7 @@ const Profile = () => {
                                 alignItems: 'center',
                                 gap: '5px',
                                 width: '120px',
-                                borderRadius: '12px'
+                                borderRadius: '12px',
                             }}>
                                 <TbShieldCheck color='#fee2e2' />
                                 <div style={{
