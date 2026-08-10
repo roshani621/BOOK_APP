@@ -14,6 +14,8 @@ const API = {
     DASHBOARD: "/dashboard",
 
     NOTIFICATION: "/notification",
+
+    BOOKS_COUNT: "/books-count"
 };
 
 export default API;

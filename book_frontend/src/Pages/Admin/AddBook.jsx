@@ -15,6 +15,8 @@ import dayjs from 'dayjs';
 import { postAPI } from '../../APIS/api';
 import API from '../../APIS/endpoints';
 
+const {TextArea} = Input;
+
 const AddBook = () => {
 
     const [open, setOpen] = useState(false);
@@ -62,6 +64,7 @@ const AddBook = () => {
                 available_copies: 0,
                 rating: 1.5,
                 description: '',
+                short_description: '',
                 publish_date: '',
                 published_by: ''
             })
@@ -79,7 +82,7 @@ const AddBook = () => {
     };
     return (
         <div className='layout-bg' style={{
-            height: '142vh'
+            height: '180vh'
         }}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
@@ -87,7 +90,7 @@ const AddBook = () => {
                 onFinish={handleSubmit}
                 style={{
                     width: '550px',
-                    height: '750px',
+                    height: '950px',
                     border: '1px solid #dc2626',
                     borderRadius: '20px',
                     padding: '50px',
@@ -114,7 +117,7 @@ const AddBook = () => {
                     <Form.Item layout='vertical'
                         label={'Author'}
                     >
-                        <Input placeholder='enter book author' name='author' value={data.author}
+                        <Input placeholder='enter author name' name='author' value={data.author}
                             prefix={<FaUserEdit />}
                             onChange={handleChange}
                         />
@@ -198,6 +201,14 @@ const AddBook = () => {
                     </Form.Item>
                 </div>
                 <Form.Item layout='vertical'
+                        label={'Short Description'}
+                    >
+                        <Input placeholder='enter short description of book' name='short_description' value={data.short_description}
+                            prefix={<BookOutlined />}
+                            onChange={handleChange}
+                        />
+                </Form.Item>
+                <Form.Item layout='vertical'
                     label={'Description'}
                 >
                     <TextArea rows={5} placeholder='enter description about book' name='description' value={data.description}
@@ -226,7 +237,7 @@ const AddBook = () => {
                     <Form.Item layout='vertical'
                         label={'Published By'}
                     >
-                        <Input placeholder='enter book name' name='published_by' value={data.published_by}
+                        <Input placeholder='enter publisher name' name='published_by' value={data.published_by}
                             prefix={<BookOutlined />}
                             onChange={handleChange}
                         />

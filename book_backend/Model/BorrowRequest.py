@@ -2,12 +2,14 @@ from flask import Blueprint, jsonify, request
 from DB import book_col, borrow_request_col, notification_col, user_col
 from datetime import datetime, timedelta
 import random
+from flask_jwt_extended import jwt_required
 
 borrow_request_api = Blueprint("borrow_request_api", __name__)
 
 
 #book borrow request at admin
 @borrow_request_api.route('/borrow-request', methods = ['GET'])
+@jwt_required()
 def BookBorrow():
     pipeline = [
         {
@@ -71,6 +73,7 @@ def BookBorrow():
     
 
 @borrow_request_api.route('/request', methods=['POST'])
+@jwt_required()
 def RequestStatus():
     data = request.get_json()
 
@@ -178,6 +181,7 @@ def RequestStatus():
     
 #borrow records
 @borrow_request_api.route('/borrow-records', methods = ['GET'])
+@jwt_required()
 def BookRecords():
     pipeline = [
         {
@@ -211,6 +215,7 @@ def BookRecords():
                 "user_id": 1, 
                 "book_name": "$book_data.book_name",
                 "description": "$book_data.description",
+                "short_description": "$book_data.short_description",
                 "author": "$book_data.author",
                 "category": "$book_data.category",
                 "total_pages": "$book_data.total_pages",

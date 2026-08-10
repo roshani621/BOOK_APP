@@ -1,20 +1,22 @@
 from flask import Blueprint, jsonify, request
 from DB import book_col, borrow_request_col, user_col, db, notification_col
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 # from gridfs import GridFS
 import random
-
+from flask_jwt_extended import jwt_required, get_jwt
 
 # fs=GridFS(db)
 
 books_api = Blueprint('books', __name__)
 
 @books_api.route('/books', methods=['GET'])
+@jwt_required()
 def get_books():
     books = book_col.find({},{
         "id": 1,
         "book_name": 1,
         "description": 1,
+        "short_description":1,
         "author": 1,
         "category": 1,
         "isbn": 1,
@@ -40,8 +42,34 @@ def get_books():
     }), 200
 
 
+@books_api.route('/book/<id>', methods=['GET'])
+@jwt_required()
+def get_book_details(id):
+    try:
+        book = book_col.find_one({"id": id});
+
+        if not book:
+            return jsonify({
+                "status": False,
+                "message": "Book not found"
+            }), 404
+
+        book["_id"] = str(book["_id"])
+
+        return jsonify({
+            "status": True,
+            "data": book
+        })
+    except Exception as e:
+        return jsonify({
+            "status": False,
+            "message": str(e)
+        }), 400
+
+
 #iniate book borrow request 
 @books_api.route('/book-request', methods = ['POST'])
+@jwt_required()
 def BookRequest():
     data = request.get_json()
 
@@ -91,48 +119,110 @@ def BookRequest():
 
 
 @books_api.route('/books-count', methods = ['GET'])
+@jwt_required()
 def BooksCount():
-    books = list(book_col.find({},{
-        "total_copies": 1,
-        "available_copies": 1,
-    }))
 
-    borrows = list(
-        borrow_request_col.find({},
-                {
-                    "status": 1
-                })
+    claims = get_jwt()
+
+    user_id = claims.get("b_user_id")
+    role_id = claims.get("b_role_id")
+    print(user_id, role_id)
+
+    if role_id == "R1":
+        borrow_filter = {}
+    else: 
+        borrow_filter = {
+            "user_id": user_id
+        }
+
+    #books count
+    books = list(
+        book_col.find(
+            {},
+            {
+                "_id": 0,
+                "total_copies": 1,
+                "available_copies": 1,
+            }
+        )
     )
+
     
     users = list(
         user_col.find({},
                   {
-                      "_id": 1,
+                      "_id": 0,
                   })
     )
-    
+
+    #return count
+    returned_count = borrow_request_col.count_documents({
+        "status": "Returned"
+    })
+
+    today = datetime.now(timezone.utc)
+
+    #overdue count
+    overdue_count = borrow_request_col.count_documents({
+        "status": "Approved",
+        "due_date": {"$lt": today}
+    })
+
+    #borrow count
+    borrow_count = borrow_request_col.count_documents({})
+
+    #total books
     total_books = sum(book.get("total_copies", 0) for book in books)
 
+    #available books
     available_books = sum(book.get("available_copies", 0) for book in books)
 
-    pending_request = sum(1 for b in borrows if b.get("status") == "Pending")
-    approved_request = sum(1 for b in borrows if b.get("status") == "Approved")
-    # pending_request = sum(1 for b in borrows if b.get("status") == "Pending")
+    #pending request
+    pending_request = borrow_request_col.count_documents({
+        **borrow_filter,
+        "status": "Pending"
+    })
+
+    #approved request
+    approved_request = borrow_request_col.count_documents({
+        **borrow_filter,
+        "status": "Approved"
+    })
+
+    #reject request
+    reject_request = borrow_request_col.count_documents({
+        **borrow_filter,
+        "status": "Rejected"
+    })
+
+    total_request = borrow_request_col.count_documents({
+        **borrow_filter
+    })
 
     total_user = len(users)
 
     return jsonify({
         "total_books": total_books,
         "available_books": available_books,
+
         "pending_requests": pending_request,
         "approved_requests": approved_request,
-        "total_users": total_user
+        "reject_requests": reject_request,
+        "total_request": total_request,
+
+        "total_users": total_user,
+
+        "borrow_count": borrow_count,
+        "overdue_count": overdue_count,
+        "returned_count":  returned_count,
+        "user_id": users
     }), 200
 
 
 #Add books
 
 @books_api.route('/add-book', methods=['POST'])
+@jwt_required()
 def Add_Book():
     try:
         data = request.get_json()
@@ -161,6 +251,7 @@ def Add_Book():
             "total_copies": int(data.get("total_copies", 0)),
             "rating": float(data.get("rating", 0)),
             "description": data.get("description", ""),
+            "short_description": data.get("short_description", ""),
             "publish_date": data.get("publish_date", ""),
             "published_by": data.get("published_by", "")
         }
@@ -202,6 +293,7 @@ def Add_Book():
 #Update Book
 
 @books_api.route('/update-book', methods=['PUT'])
+@jwt_required()
 def Update_Book():
     try:
         
@@ -228,6 +320,7 @@ def Update_Book():
             "total_copies": int(data.get("total_copies",0)),
             "rating": float(data.get("rating",0)),
             "description": data.get("description"),
+            "short_description": data.get("short_description"),
             "publish_date": data.get("publish_date"),
             "published_by": data.get("published_by"),
             "updated_date": datetime.utcnow()

@@ -5,7 +5,7 @@ import { TbBooks } from "react-icons/tb";
 import { FaUserCircle } from "react-icons/fa";
 import { GoBell } from "react-icons/go";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getAPI } from '../APIS/api';
 
 const { Header } = Layout;
 const {Title, Text} = Typography;
@@ -20,7 +20,7 @@ const Navtab = ({ onMenuClick }) => {
     useEffect(() => {
             const fetchUserProfile = async () => {
                 try {
-                    const res = await axios.get(`http://127.0.0.1:5000/user-profile/${user_id}`);
+                    const res = await getAPI(`/user-profile/${user_id}`);
                     setName(res.data.user)
                 } catch (err) {
                     console.log(err);

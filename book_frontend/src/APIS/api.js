@@ -8,6 +8,21 @@ const api = axios.create({
     },
 });
 
+api.interceptors.request.use(
+    (config)=>{
+        const token = localStorage.getItem("b_token");
+        console.log("REQUEST URL:", config.url);
+        console.log("JWT TOKEN:", token);
+        if(token){
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error)=>{
+        return Promise.reject(error);
+    }
+)
+
 // GET
 export const getAPI = async(url) =>{
     try{

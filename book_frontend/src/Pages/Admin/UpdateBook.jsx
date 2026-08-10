@@ -34,6 +34,7 @@ const UpdateBook = () => {
         available_copies: 0,
         rating: 1.5,
         description: '',
+        short_description: '',
         publish_date: '',
         published_by: ''
     });
@@ -53,7 +54,7 @@ const UpdateBook = () => {
         try {
             const res = await putAPI(API.UPDATE_BOOK, data);
             console.log(data);
-            
+
         } catch (err) {
             console.log(err);
         }
@@ -74,12 +75,12 @@ const UpdateBook = () => {
     }, []);
 
 
-    const generateISBN = () =>{
+    const generateISBN = () => {
         const isbn = Math.floor(
             1000000000000 + Math.random() * 9000000000000
         ).toString();
 
-        setData((prev)=>({
+        setData((prev) => ({
             ...prev,
             isbn,
         }));
@@ -87,7 +88,7 @@ const UpdateBook = () => {
 
     return (
         <div className='layout-bg' style={{
-            minHeight:'175vh'
+            minHeight: '190vh'
         }}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
@@ -95,7 +96,7 @@ const UpdateBook = () => {
                 onFinish={handleSubmit}
                 style={{
                     width: '550px',
-                    height: '930px',
+                    height: '1040px',
                     border: '1px solid #dc2626',
                     borderRadius: '20px',
                     padding: '50px',
@@ -112,10 +113,10 @@ const UpdateBook = () => {
                     gap: '20px'
                 }}>
                     <Form.Item layout='vertical'
-                        label={'Book Name'}
+                        label={'Select book want to update'}
                     >
                         <Select
-                            placeholder='Select Book ID'
+                            placeholder='Select book from here'
                             onChange={(value) => {
                                 const selected = books.find(book => book.id === value);
                                 setData(selected);
@@ -142,7 +143,7 @@ const UpdateBook = () => {
                     <Form.Item layout='vertical'
                         label={'Author'}
                     >
-                        <Input placeholder='enter book author' name='author' value={data.author}
+                        <Input placeholder='enter author name' name='author' value={data.author}
                             prefix={<FaUserEdit />}
                             onChange={handleChange}
                         />
@@ -165,8 +166,8 @@ const UpdateBook = () => {
                     <Form.Item layout='vertical'
                         label={'ISBN Number'}
                     >
-                        <Input placeholder='generate isbn number' name='isbn' value={data.isbn}                           
-                            prefix={<BsUpcScan onClick={generateISBN}/>}
+                        <Input placeholder='generate isbn number' name='isbn' value={data.isbn}
+                            prefix={<BsUpcScan onClick={generateISBN} />}
                             onChange={handleChange}
                         />
                     </Form.Item>
@@ -226,6 +227,14 @@ const UpdateBook = () => {
                     </Form.Item>
                 </div>
                 <Form.Item layout='vertical'
+                    label={'Short Description'}
+                >
+                    <Input placeholder='enter short description of book' name='short_description' value={data.short_description}
+                        prefix={<BookOutlined />}
+                        onChange={handleChange}
+                    />
+                </Form.Item>
+                <Form.Item layout='vertical'
                     label={'Description'}
                 >
                     <TextArea rows={5} placeholder='enter description about book' name='description' value={data.description}
@@ -250,7 +259,7 @@ const UpdateBook = () => {
                     <Form.Item layout='vertical'
                         label={'Published By'}
                     >
-                        <Input placeholder='enter book name' name='published_by' value={data.published_by}
+                        <Input placeholder='enter publisher name' name='published_by' value={data.published_by}
                             prefix={<BookOutlined />}
                             onChange={handleChange}
                         />

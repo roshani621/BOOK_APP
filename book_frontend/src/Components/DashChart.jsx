@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import axios from 'axios';
 import { Typography, Card, Row, Col, Tag, Menu, Dropdown, Divider, Avatar, Button } from 'antd';
 import { FiBookOpen, FiUsers } from "react-icons/fi";
 import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
 import { MdOutlinePendingActions } from "react-icons/md";
-import { FaClipboardList } from "react-icons/fa";
+import { FaArrowRight, FaClipboardList } from "react-icons/fa";
 import '../assets/Main.css';
 import { AiOutlineHeart } from 'react-icons/ai';
-import { FaHandSparkles } from "react-icons/fa6";
+import { FaBookOpen, FaHandSparkles } from "react-icons/fa6";
 import { FaCircleCheck } from "react-icons/fa6";
 import { FiCheckCircle } from "react-icons/fi";
 import { CgSandClock } from "react-icons/cg";
@@ -17,6 +16,9 @@ import { BiSolidCategory } from "react-icons/bi";
 import { CiClock2 } from "react-icons/ci";
 import '../assets/Banner.css';
 import bannerImage from '../assets/Images/banner-image.png';
+import { useNavigate } from 'react-router-dom';
+import { getAPI } from '../APIS/api';
+import API from '../APIS/endpoints';
 
 const { Text, Title } = Typography;
 const { Meta } = Card;
@@ -32,8 +34,10 @@ const DashChart = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [booksDetails, setBooksDetails] = useState([]);
 
+  const navigate = useNavigate();
+
   const fetchBooks = async () => {
-    const res = await axios.get('http://127.0.0.1:5000/books');
+    const res = await getAPI(API.BOOKS);
     setBooks(res.data.books);
     const processed = processedCategoryData(res.data.books);
 
@@ -61,7 +65,7 @@ const DashChart = () => {
 
   const fetchDetails = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:5000/borrow-records');
+      const res = await getAPI(API.BORROW_RECORDS);
       setBooksDetails(res.data.request);
 
     } catch (err) {
@@ -74,7 +78,7 @@ const DashChart = () => {
   useEffect(() => {
           const fetchUserProfile = async () => {
               try {
-                  const res = await axios.get(`http://127.0.0.1:5000/user-profile/${user_id}`);
+                  const res = await getAPI(`/user-profile/${user_id}`);
                   console.log(res.data.user)
                   setUser(res.data.user)
               } catch (err) {
@@ -96,7 +100,7 @@ const DashChart = () => {
   useEffect(() => {
     const fetchBooksCount = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:5000/books-count');
+        const res = await getAPI(API.BOOKS_COUNT);
         setData(res.data);
       } catch (error) {
         console.log(error);
@@ -304,6 +308,14 @@ const DashChart = () => {
                     bodyStyle={{
                       padding: '14px'
                     }}
+
+                    // actions={[
+                    //   <div style={{
+                    //     background: '#232323',
+                    //   }}>
+                    //     <FaBookOpen />
+                    //   </div>
+                    // ]}
                   >
                     <div
                       style={{
@@ -433,6 +445,11 @@ const DashChart = () => {
                               {b.available_copies} Available Copies
                             </Text>
                       </Tag>
+                    </div>
+                    <div>
+                      <Button icon={<FaBookOpen />} style={{borderRadius: '999px'}}>
+                        View Details <FaArrowRight onClick={()=>navigate(`/book/${b.id}`)} />
+                      </Button>
                     </div>
                   </Card>
                 ))

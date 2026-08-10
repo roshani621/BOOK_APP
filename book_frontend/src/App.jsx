@@ -12,6 +12,7 @@ import BorrowHistory from './Pages/Users/BorrowHistory';
 import MyBorrowBook from './Pages/Users/MyBorrowBook';
 import Profile from './Components/Profile';
 import Notification from './Components/Notification';
+import BookDetails from './Components/BookDetails';
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           <Route path='/my-books' element={<MyBorrowBook/>}/>
           <Route path='/profile' element={<Profile/>}/>
           <Route path='/notification' element={<Notification />}/>
+          <Route path='/book/:id' element={<BookDetails />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -209,7 +209,7 @@ const BorrowRequest = () => {
                                                         borderColor: '#fca5a5',
                                                         backgroundColor: '#fca5a5',
                                                         color: '#991b1b',
-                                                        fontWeight: '700',
+                                                        fontWeight: '600',
                                                         borderRadius: '12px'
                                                     }}
                                                 >

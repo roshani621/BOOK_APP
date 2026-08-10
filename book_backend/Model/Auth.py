@@ -4,7 +4,12 @@ import os, uuid
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from DB import user_col, role_col
-
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity
+)
 auth_api = Blueprint('auth_api', __name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,12 +37,28 @@ def login():
     if not user:
         return jsonify({"message":"User not found"})
     
-    if bcrypt.checkpw(password.encode('utf-8'), 
-                      user['password'].encode('utf-8')
-                    ):
-        return jsonify({"message": "Login Successful", "user": user}), 200
-    else:
+    if not bcrypt.checkpw(
+        password.encode("utf-8"),
+        user["password"].encode("utf-8")
+    ):
         return jsonify({"message": "Invalid Credential"}), 401
+
+    token = create_access_token(
+        identity=user["id"],
+        additional_claims={
+            "b_user_id": user["id"],
+            "b_role_id": user["role_id"]
+        }
+    )
+    print(token)
+    return jsonify({
+        "status": True,
+        "message":"Login Successfully",
+        "token": token,
+        "user_id": user["id"],
+        "username": user["username"],
+        "role_id": user["role_id"]
+    }), 200
     
 #user registeration
 @auth_api.route('/register', methods=['POST'])
@@ -95,6 +116,7 @@ def register():
 
 
 @auth_api.route('/menu/<user_id>', methods = ['GET'])
+@jwt_required()
 def Menu(user_id):
     user = user_col.find_one({"id": user_id})
 
@@ -115,6 +137,7 @@ def Menu(user_id):
 
 
 @auth_api.route('/user-profile/<user_id>', methods = ['GET'])
+@jwt_required()
 def User_Profile(user_id):
     if not user_id:
         return jsonify({"message": "User not found"}), 404

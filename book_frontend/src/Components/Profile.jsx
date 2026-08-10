@@ -9,6 +9,8 @@ import { FaPhone } from "react-icons/fa6";
 import { CiCalendarDate } from "react-icons/ci";
 import { useNavigate } from 'react-router-dom';
 import '../assets/Common.css';
+import { getAPI } from '../APIS/api';
+import API from '../APIS/endpoints';
 
 const { Title, Text } = Typography;
 const Profile = () => {
@@ -16,12 +18,14 @@ const Profile = () => {
     const [user, setUser] = useState([]);
     const [requests, setRequests] = useState([]);
     const user_id = localStorage.getItem('b_user_id');
+    const [counts, setCounts] = useState(0);
     const navigate = useNavigate();
+    const role_id = localStorage.getItem("b_role_id");
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const res = await axios.get(`http://127.0.0.1:5000/user-profile/${user_id}`);
+                const res = await getAPI(`/user-profile/${user_id}`);
                 console.log(res.data.user)
                 setUser(res.data.user)
             } catch (err) {
@@ -36,7 +40,6 @@ const Profile = () => {
     }
 
     const formatDate = (date) => {
-        console.log(date);
         return new Date(date).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'long',
@@ -46,26 +49,27 @@ const Profile = () => {
 
 
 
-    const fetchRecords = async () => {
+    // const fetchRecords = async () => {
+    //     try {
+    //         const res = await getAPI(API.BOOKS_COUNT);
+    //         setRequests(res.data);
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
+
+    const fetchCount = async () => {
         try {
-            const res = await axios.get("http://127.0.0.1:5000/borrow-records");
-            const newData = res.data.request;
-            const userRequest = newData.filter(
-                req => req.user_id === user_id
-            );
-            setRequests(userRequest);
-            console.log(newData);
+            const res = await getAPI(API.BOOKS_COUNT);
+            console.log(res);
+            setCounts(res.data);
         } catch (err) {
-            console.log(err);
+            console.log("something went wrong", err);
         }
     }
 
-    const approvedCount = requests.filter(b => b.status === 'Approved').length;
-    const rejectCount = requests.filter(b => b.status === 'Rejected').length;
-    const pendingCount = requests.filter(b => b.status === 'Pending').length;
-
     useEffect(() => {
-        fetchRecords();
+        fetchCount();
     }, []);
 
     return (
@@ -79,9 +83,10 @@ const Profile = () => {
                 <Card
                     className='profile-bg'
                     style={{
-                        background: '#b91c1c',
+                        background: '#232323',
                         height: '240px',
-                        borderRadius: '12px'
+                        borderRadius: '12px',
+                        borderColor: '#3A3A3D'
                     }}
                 >
                     <div style={{
@@ -91,7 +96,7 @@ const Profile = () => {
                         gap: '10px',
                     }}>
                         <FaArrowLeft onClick={() => { navigate('/dashboard') }} style={{
-                            cursor: 'pointer'
+                            cursor: 'pointer', color: '#fee2e2'
                         }} />
                         <Title level={4}>Profile</Title>
                     </div>
@@ -104,17 +109,21 @@ const Profile = () => {
                         <Avatar size={80} shape='circle'
                             style={{
                                 borderColor: 'white', border: '3px solid #fee2e2',
+                                background: '#991b1b'
                             }}
                         >{getInitials(user.username)}</Avatar>
                         <div>
                             <Title level={4}>{user.username}</Title>
-                            <Text className='profile-text'>{user.email}</Text>
+                            <Text style={{fontSize: '15px'}} className='profile-text'>{user.email}</Text>
                             <Tag style={{
                                 background: '#991b1b',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '5px',
-                                width: '120px',
+                                width: '80px',
+                                padding: '2px 4px',
+                                margin: '5px',
+                                justifyContent: 'center',
                                 borderRadius: '12px',
                             }}>
                                 <TbShieldCheck color='#fee2e2' />
@@ -124,13 +133,6 @@ const Profile = () => {
                                     gap: '10px',
                                 }}>
                                     <Text className='profile-text'>{user.role_name}</Text>
-                                    <div style={{
-                                        width: '4px',
-                                        height: '4px',
-                                        borderRadius: '50%',
-                                        background: '#fef2f2'
-                                    }}></div>
-                                    <Text className='profile-text'>{user.role_id}</Text>
                                 </div>
                             </Tag>
                         </div>
@@ -152,170 +154,98 @@ const Profile = () => {
                         <Card className='pr-card' hoverable>
                             <Title level={3} style={{
                                 color: 'red'
-                            }}>{requests.length}</Title>
-                            <Title level={5} style={{color: '#BFBFBF'}}>Total</Title>
+                            }}>{counts.total_request || 0}</Title>
+                            <Title level={5} style={{ color: '#BFBFBF' }}>Total</Title>
                         </Card>
                         <Card className='pr-card' hoverable>
                             <Title level={3} style={{
                                 color: 'green'
-                            }}>{approvedCount}</Title>
-                            <Title level={5} style={{color: '#BFBFBF'}}>Approved</Title>
+                            }}>{counts.approved_requests || 0}</Title>
+                            <Title level={5} style={{ color: '#BFBFBF' }}>Approved</Title>
                         </Card>
                         <Card className='pr-card' hoverable>
                             <Title level={3} style={{
                                 color: '#991b1b'
-                            }}>{rejectCount}</Title>
-                            <Title level={5} style={{color: '#BFBFBF'}}>Rejected</Title>
+                            }}>{counts.reject_requests || 0}</Title>
+                            <Title level={5} style={{ color: '#BFBFBF' }}>Rejected</Title>
                         </Card>
                         <Card className='pr-card' hoverable>
                             <Title level={3} style={{
                                 color: '#ea580c'
-                            }}>{rejectCount}</Title>
-                            <Title level={5} style={{color: '#BFBFBF'}}>Pending</Title>
+                            }}>{counts.pending_requests || 0}</Title>
+                            <Title level={5} style={{ color: '#BFBFBF' }}>Pending</Title>
                         </Card>
                     </div>
                 </div>
             </div>
-            <Card hoverable
-                style={{
-                    margin: '10px 14px',
-                    background: '#232323'
-                }}
-                title={
-                    <Title className='t-text' level={5} type='secondary'>Account Info</Title>
-                }
-            >
-                <div>
-                    <div
 
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '10px'
-                        }}>
-                        <div className='card-inner'>
-                            <CiMail className='pr-icon' />
-                            <Title level={5} style={{color: '#BFBFBF'}} type='secondary'>Email</Title>
-                            <div style={{
-                                marginLeft: '30px'
-                            }}>
-                                <Text strong style={{color: '#BFBFBF'}}>{user.email}</Text>
-                            </div>
-                        </div>
-                        <div className='card-inner'>
-                            <FaPhone className='pr-icon' />
-                            <Title level={5} type='secondary' style={{color: '#BFBFBF'}}>Phone</Title>
-                            <div style={{
-                                marginLeft: '23px'
-                            }}><Text style={{color: '#BFBFBF'}} strong>{user.phone}</Text></div>
-                        </div>
-                        <div className='card-inner'>
-                            <CiCalendarDate className='pr-icon' />
-                            <Title style={{color: '#BFBFBF'}} level={5} type='secondary'>Since</Title>
-                            <div style={{
-                                marginLeft: '30px'
-                            }}>
-                                <Text style={{color: '#BFBFBF'}} strong>{formatDate(user.created_at)}</Text>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Card>
-
-            <Card hoverable
-                style={{
-                    margin: '10px 14px',
-                    marginTop: '40px',
-                    background: '#2C2C2C'
-                }}
-                title={<Title type='secondary' style={{ color: '#b91c1c' }} level={5}>Activity timeline</Title>}
-                extra={<Text strong style={{ color: '#b91c1c' }}>View all</Text>}
-            >
-                <Row>
-                    <Col style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap:'12px'
-                    }}>
-                        {requests.map((request) => (
-                            <Card style={{
-                                padding: '2px 6px',
-                                background: '#2C2C2C',
-                                width: '80rem',
-                            }}>
-                                <div style={{
+            <div style={{textAlign: 'center'}}>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Card hoverable
+                            style={{
+                                margin: '10px 14px',
+                                background: '#232323',
+                                borderColor: '#3A3A3D',
+                            }}
+                        >
+                            <div
+                                style={{
                                     display: 'flex',
+                                    flexDirection: 'column',
                                     justifyContent: 'space-between',
-                                    alignItems: 'center'
                                 }}>
-                                    <div>
-                                    <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'row',
-                                    alignItems: 'center',
-                                    gap: '10px'
-                                }}>
-                                    <div
-                                        style={{
-                                            width: '8px',
-                                            height: '8px',
-                                            borderRadius: '50%',
-                                            background:
-                                                request.status === 'Approved' ?
-                                                    '#15803d' :
-                                                    request.status === 'Rejected' ?
-                                                        '#b91c1c' :
-                                                        request.status === 'Pending' ?
-                                                            '#f97316' :
-                                                            '#991b1b'
-                                        }}
-                                    ></div>
-                                    <Title className='t-text' level={5}>{request.book_name}</Title>
+                                <Title className='t-text' level={5} type='secondary'>Account Info</Title>
+                                <div className='card-inner-text'>
+                                    <div className='card-inner'>
+                                        <CiMail className='pr-icon' />
+                                        <Title level={5} style={{ color: '#BFBFBF' }} type='secondary'>Email</Title>
+                                    </div>
+                                    <Text strong style={{ color: '#BFBFBF' }}>{user.email}</Text>
                                 </div>
 
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: '5px',
-                                    margin: '4px 6px'
-                                }}>
-                                    <Text style={{
-                                        color: '#BFBFBF'
-                                    }} type='secondary'>{request.book_id}</Text>
-                                    <div className='dot'></div>
-                                    <Text style={{
-                                        color: '#BFBFBF'
-                                    }} type='secondary'>{request.borrow_days} days</Text>
+                                <div className='card-inner-text'>
+                                    <div className='card-inner'>
+                                        <FaPhone className='pr-icon' />
+                                        <Title level={5} type='secondary' style={{ color: '#BFBFBF' }}>Phone</Title>
+                                    </div>
+                                    <Text style={{ color: '#BFBFBF' }} strong>{user.phone}</Text>
                                 </div>
+
+                                <div className='card-inner-text'>
+                                    <div className='card-inner'>
+                                        <CiCalendarDate className='pr-icon' />
+                                        <Title style={{ color: '#BFBFBF' }} level={5} type='secondary'>Since</Title>
+                                    </div>
+                                    <Text style={{ color: '#BFBFBF' }} strong>{formatDate(user.created_at)}</Text>
                                 </div>
-                                <div style={{
-                                    display: 'flex',
-                                    gap: '12px'
-                                }}>
-                                    <Text className='t-text' type='secondary'>Due {formatDate(request.due_date)}</Text>
-                                    <Text
-                                        style={{
-                                            color:
-                                                request.status === 'Approved' ?
-                                                    '#16a34a' :
-                                                    request.status === 'Rejected' ?
-                                                        '#b91c1c' :
-                                                        request.status === 'Pending' ?
-                                                            '#c2410c' :
-                                                            '#991b1b',
-                                            fontSize: '11pt',
-                                            fontWeight: '500'
-                                        }}
-                                    >{request.status}</Text>
-                                
-                                </div>
-                                </div>
-                            </Card>
-                        ))}
+                            </div>
+                        </Card>
+                    </Col>
+
+                    <Col span={12}>
+                        <Card hoverable style={{
+                            margin: '10px 14px',
+                            background: '#232323',
+                            borderColor: '#3A3A3D',padding: '10px 12px', margin: '8px 12px'
+                        }}>
+                            <Title level={5} className='t-text'>Library Activity</Title>
+                            <div className='card-inner-text'>
+                                <Title style={{ color: '#BFBFBF' }} level={5}>Borrowed Count</Title>
+                                <Text style={{ color: '#BFBFBF' }}>{counts.borrow_count || 0}</Text>
+                            </div>
+                            <div className='card-inner-text'>
+                                <Title style={{ color: '#BFBFBF' }} level={5}>Returned Count</Title>
+                                <Text style={{ color: '#BFBFBF' }}>{counts.returened_count || 0}</Text>
+                            </div>
+                            <div className='card-inner-text'>
+                                <Title style={{ color: '#BFBFBF' }} level={5}>Overdue Count</Title>
+                                <Text style={{ color: '#BFBFBF' }}>{counts.overdue_count || 0}</Text>
+                            </div>
+                        </Card>
                     </Col>
                 </Row>
-            </Card>
+            </div>
         </div>
     );
 };

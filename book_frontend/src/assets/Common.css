@@ -107,6 +107,11 @@
     gap: 10px;
 }
 
+.card-inner-text{
+    display: flex;
+    justify-content: space-between;
+}
+
 .profile-bg h4{
     color: #fef2f2 !important;
 }
@@ -122,11 +127,12 @@
     padding: 0px;
     background: #232323;
     border-radius: 20px;
+    border-color: #3A3A3D;
 }
 
 .pr-icon{
     color: #DC2626;
-    font-size: 22px !important;
+    font-size: 18px !important;
 }
 
 .dot{

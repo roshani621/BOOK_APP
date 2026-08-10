@@ -1,5 +1,4 @@
 import { Drawer, Layout, Typography } from 'antd';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../assets/Main.css';
@@ -12,6 +11,7 @@ import { FaBookOpen } from "react-icons/fa";
 import { FaClipboardList } from "react-icons/fa";
 import { FaHistory } from "react-icons/fa";
 import { TbBookUpload } from "react-icons/tb";
+import { getAPI } from '../APIS/api';
 
 const { Sider } = Layout;
 const { Title, Text } = Typography;
@@ -24,7 +24,7 @@ const Sidebar = ({ open, onClose }) => {
 
     const fetchMenus = async () => {
         try {
-            const res = await axios.get(`http://127.0.0.1:5000/menu/${user_id}`);
+            const res = await getAPI(`/menu/${user_id}`);
             console.log(res.data);
             setMenus(res.data.menus);
         } catch (err) {

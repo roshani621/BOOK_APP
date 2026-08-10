@@ -179,7 +179,7 @@ const ViewBooks = () => {
                                         <Title level={5}
                                             style={{ marginTop: '15px' }}
                                         >Title - {selectedBook.book_name}</Title>
-                                        <Text>Description - {selectedBook.description}</Text>
+                                        <Text>Description - {selectedBook.short_description}</Text>
                                         <Text>Author - {selectedBook.author}</Text>
                                         <Text>Category - {selectedBook.category}</Text>
                                         <Text>ISBN Number - {selectedBook.isbn}</Text>
