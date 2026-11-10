@@ -34,7 +34,7 @@ const Login = () => {
 
             navigate('/dashboard');
         } catch (err) {
-            console.log(err);
+            console.log("Invalid Credential");
         }
     }
     return (

@@ -83,6 +83,7 @@ const ViewBooks = () => {
                         style={{
                             cursor: 'pointer',
                             color: selectedCat === cat? '#ffffff' : '#d1d5db',
+                            borderColor: selectedCat === cat ? '#B91C1C' : '#555555',
                             background: selectedCat === cat ? '#dc2626' : '#3f3f46',
                             fontSize: '13px', borderRadius: '999px', padding: '4px 12px',
                             fontWeight: '500px', margin: '20px 10px'
@@ -102,15 +103,16 @@ const ViewBooks = () => {
                         ).map(book=>(
                             <Card style={{
                                 background: '#232323',
-                                borderColor: '#232323',
                                 overflow: 'hidden',
-                                width: '250px'
+                                width: '250px',
+                                borderRadius:'20px',
+                                border:'none'
                             }}
                             onClick={()=>handleBookClick(book)}
                             >
                                 <img src={book.image} style={{
                                     width: '200px',
-                                    height:'300px',
+                                    height:'280px',
                                     objectFit: 'cover',
                                     borderRadius: '12px'
                                 }}/>
@@ -156,7 +158,7 @@ const ViewBooks = () => {
                             {selectedBook && (
                                 <Card key={selectedBook.id} style={{
                                     borderRadius: '14px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                                    background: '#2C2C2C', borderColor:'#2C2C2C'
+                                    background: '#2C2C2C', borderColor:'#555555'
                                 }}>
                                     <div style={{
                                         display: 'flex',
@@ -169,12 +171,13 @@ const ViewBooks = () => {
                                             style={{
                                                 background: 'rgba(0, 0, 0, 0.1)', padding: '20px',
                                                 borderRadius: '12px',
-                                                marginBottom: '20px'
+                                                marginBottom: '20px',
+                                                border:'none'
                                             }}
                                             className='card-ui'
                                         >
                                             <img src={selectedBook.image}
-                                                style={{ width: '200px', height: '300px', objectFit: 'contain' }} />
+                                                style={{ width: '200px', height: '200px', objectFit: 'contain' }} />
                                         </Card>
                                         <Title level={5}
                                             style={{ marginTop: '15px' }}
@@ -187,7 +190,10 @@ const ViewBooks = () => {
                                         <Text>Available Copies - {selectedBook.available_copies}</Text>
                                         <Text>Status:
                                             {selectedBook.available_copies > 0 ? 
-                                            <Tag>Available</Tag> :
+                                            <Tag style={{
+                                                borderRadius: '999px', marginLeft: '6px',
+                                                color: 'green', fontWeight: '600'
+                                            }}>Available</Tag> :
                                             <Tag>--</Tag>   
                                         }</Text>
                                         <Text>Rating - {selectedBook.rating}</Text>

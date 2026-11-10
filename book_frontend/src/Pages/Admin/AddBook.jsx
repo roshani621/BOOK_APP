@@ -14,6 +14,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { postAPI } from '../../APIS/api';
 import API from '../../APIS/endpoints';
+import NotificationSocket from '../../services/NotificationSocket';
 
 const {TextArea} = Input;
 
@@ -80,10 +81,15 @@ const AddBook = () => {
 
         setData({ ...data, isbn: isbn });
     };
+
+    const handleNotification = (notification) =>{
+        console.log("New Book received notification: ", notification)
+    }
     return (
         <div className='layout-bg' style={{
             height: '180vh'
         }}>
+            <NotificationSocket onNotification={handleNotification} />
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
             <Form

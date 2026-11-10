@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 import Navtab from './Navtab';
 import Sidebar from './Sidebar';
-import axios from 'axios';
-import { TbBooks } from 'react-icons/tb';
 import { Avatar, Typography, Tag, Card, Rate, Button, Divider } from 'antd';
+import { MdCancel } from "react-icons/md";
+import { getAPI } from '../APIS/api';
+import API from '../APIS/endpoints';
+import '../assets/Common.css';
+import { FaCircleCheck } from "react-icons/fa6";
+import { FaUser } from 'react-icons/fa';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { LuBookOpenCheck } from 'react-icons/lu';
 
-import { FaFire } from "react-icons/fa";
-import { MdLibraryAdd } from "react-icons/md";
-import { MdOutlineAccessTimeFilled } from "react-icons/md";
-import { BsLightbulbFill } from "react-icons/bs";
-import { MdOutlineAutoStories } from "react-icons/md";
-
-
+dayjs.extend(relativeTime);
 const { Title, Text } = Typography;
 
 const Notification = () => {
@@ -24,7 +25,7 @@ const Notification = () => {
 
     const fetchNotifications = async () => {
         try {
-            const res = await axios.get('http://127.0.0.1:5000/notification');
+            const res = await getAPI(API.NOTIFICATION);
             setNotifications(res.data.notification);
             console.log(res.data.notification);
         } catch (err) {
@@ -36,245 +37,404 @@ const Notification = () => {
         fetchNotifications();
     }, []);
 
-    const category = ["All", ...new Set(notifications.map(n => n.category))];
+    const category = ["All", ...new Set(notifications.map(n => n.type))];
+    console.log(category);
 
-    const categoryIcons = {
-        "Trending": <FaFire />,
-        "New Arrivals": <MdLibraryAdd />,
-        "Overdue Books": <MdOutlineAccessTimeFilled />,
-        "Suggestions": <BsLightbulbFill />,
-        "Book Updates": <MdOutlineAutoStories />
-    };
+    const getInitials = (name) => {
+        console.log(name)
+        return name?.split(' ').map(word => word[0]).join('').toUpperCase();
+    }
 
-    const renderNotification = (n) =>{
-        switch(n.category){
-            case "Book Updates":
-                return(
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <Title level={5} style={{color: '#BFBFBF'}}>{n.message}</Title>
-                            <Tag color={'green'} style={{borderRadius: '999px'}}>{n.status}</Tag>
-                        </div>
-
-                        <div>
-                            <Text style={{color: '#BFBFBF'}}><b>Author: </b>{n.author}</Text>
-                            <br />
-                            <Text style={{ color: '#BFBFBF' }}>
-                                <b>Available Copies:</b> {n.available_copies}/{n.total_copies}
-                            </Text>
-                            <br />
-                            <Text style={{color: '#BFBFBF'}}>{n.rating}</Text> 
-                            <Rate value={Number(n.rating)} disabled allowHalf style={{
-                                marginTop: '7px',  marginLeft: '7px'
-                            }}/>      
-                        </div>
-                    </>
-                )
-            case "Overdue Books":
-                return(
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <Title level={5} style={{color: '#BFBFBF'}}>{n.message}</Title>
-                            <Tag color={'red'} style={{borderRadius: '999px'}}>{n.status}</Tag>
-                        </div>
-
-                        <div>
-                            <Text style={{color: '#BFBFBF'}}><b>Member: </b>{n.member_name}</Text>
-                            <br />
-                            <Text style={{color: '#BFBFBF'}}>
-                                <b>Book:</b> {n.book_name}
-                            </Text>
-                            <br />
-                            <Text style={{color: '#BFBFBF'}}>
-                                <b>Fine: </b> {n.fine}
-                            </Text>
-                            <br />
-                            {n.actions.map((action)=>(
-                                <Button
-                                style={{
-                                    marginRight: '8px',
-                                    background: action === 'Send Reminder'?
-                                    '#dc2626' : '#3b82f6', color: '#FFF',
-                                    fontWeight: '600', border: 'none'
-                                }}
-                                >{action}</Button>
-                            ))}
-                        </div>
-                    </>
-                )
-            case "Suggestions":
+    const notificationCategory = (n) => {
+        switch (n.type) {
+            case "BOOK_OVERDUE":
                 return (
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <Title level={5} style={{color: '#BFBFBF'}}>{n.message}</Title>
-                            <Tag color="purple" style={{borderRadius: '999px'}}>{n.status}</Tag>
-                        </div>
-                        <br />
-                        <Title level={5} style={{color: '#BFBFBF'}}><b>Book</b>: {n.book_name}</Title> 
-                        <Title level={5} style={{color: '#BFBFBF'}}><b>Author</b>: {n.author}</Title><br />
-                    </>
-                );
-            case "New Arrivals":
-                return (
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <Title level={5} style={{color: '#FFF'}}>{n.message}</Title>
-                            <Tag color="green" style={{borderRadius: '999px'}}>{n.status}</Tag>
-                        </div>
+                    <Card className="notification-card">
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '20px'
+                            }}
+                        >
+                            {/* Left side */}
+                            <div className="notification-content">
+                                <Avatar
+                                    size={50}
+                                    style={{ background: '#202F3F' }}
+                                >
+                                    <FaUser color="#60A5FA" />
+                                </Avatar>
 
-                        <br /><br />
-
-                        {n.category === 'New Arrivals' && (
-                            <div>
-                                {n.books?.map((book, index) => (
-                                    <div
-                                        key={index}
+                                <div>
+                                    <Title
+                                        level={5}
                                         style={{
-                                            color: "#fff",
-                                            padding: "8px 12px",
-                                            background: "#3b3b3b",
-                                            borderRadius: "8px",
-                                            marginBottom: "8px"
+                                            color: '#d1d5db',
+                                            margin: 0
                                         }}
                                     >
-                                        📚 {book}
-                                    </div>
-                                ))}
+                                        {n.title}
+                                    </Title>
+
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
+                                    </Text>
+                                </div>
                             </div>
-                        )}
-                        
-                        <br />
-                        {n.actions.map((action)=>(
-                                <Button
+
+                            {/* Right side */}
+                            <Text
                                 style={{
-                                    marginRight: '10px', marginTop: '10px',
-                                    fontWeight: '600', border: 'none',
-                                    background: action === 'View Arrivals'?
-                                    'green': '#dc2626',
-                                    color: "#fff",
+                                    color: '#cbd5e1',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '12px'
                                 }}
-                                >{action}</Button>
-                            ))}
-                    </>
-                );
-            case "Trending":
-                return (
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <Title level={5} style={{color: '#FFF'}}>{n.message}</Title> 
-
-                            <Tag color="orange" style={{borderRadius: '999px'}}>{n.status}</Tag>
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
                         </div>
+                    </Card>
+                )
+            case "BORROW_REQUEST":
+                return (
+                    <Card className="notification-card">
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '15px'
+                            }}
+                        >
+                            {/* Left side */}
+                            <div
+                                className="notification-content"
+                                style={{
+                                    display: 'flex',
+                                    gap: '12px',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Avatar
+                                    size={50}
+                                    style={{ background: '#202F3F' }}
+                                >
+                                    <FaUser color="#60A5FA" style={{
+                                        paddingTop: '10px'
+                                    }}/>
+                                </Avatar>
 
-                        <Title level={5} style={{color: '#FFF'}}>{n.book_name}</Title>
-                        <Text style={{color: '#BFBFBF'}}><b>Borrow Count</b>: {n.borrow_count}</Text> <br />
+                                <div>
+                                    <Title
+                                        level={5}
+                                        style={{
+                                            color: '#d1d5db',
+                                            margin: 0
+                                        }}
+                                    >
+                                        {n.title}
+                                    </Title>
 
-                        <Rate disabled value={n.rating} allowHalf  style={{
-                            marginTop: '9px'
-                        }}/>
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
+                                    </Text>
+                                </div>
+                            </div>
 
-                        
-                    </>
-                );
-            default: 
-                return <Text>{n.message}</Text>;
+                            {/* Right side - time */}
+                            <Text
+                                style={{
+                                    color: '#94a3b8',
+                                    fontSize: '12px',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
+                        </div>
+                    </Card>
+                )
+            case "RETURNED_BOOK":
+                return (
+                    <Card className="notification-card">
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '15px'
+                            }}
+                        >
+                            {/* Left side */}
+                            <div
+                                className="notification-content"
+                                style={{
+                                    display: 'flex',
+                                    gap: '12px',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Avatar
+                                    size={50}
+                                    style={{ background: '#203329' }}
+                                >
+                                    <FaCircleCheck color="#4ADE80" style={{
+                                        paddingTop: '7px'
+                                    }} />
+                                </Avatar>
+
+                                <div>
+                                    <Title
+                                        level={5}
+                                        style={{
+                                            color: '#d1d5db',
+                                            margin: 0
+                                        }}
+                                    >
+                                        {n.title}
+                                    </Title>
+
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
+                                    </Text>
+                                </div>
+                            </div>
+
+                            {/* Right side - time */}
+                            <Text
+                                style={{
+                                    color: '#94a3b8',
+                                    fontSize: '12px',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
+                        </div>
+                    </Card>
+                )
+            case "APPROVED_REQUEST":
+                return (
+                    <Card className="notification-card">
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '20px'
+                            }}
+                        >
+                            {/* Left side */}
+                            <div className="notification-content">
+                                <Avatar
+                                    size={50}
+                                    style={{ background: '#203329'}}
+                                >
+                                    <LuBookOpenCheck color="#4ADE80" style={{
+                                        paddingTop: '10px'
+                                    }}/>
+                                </Avatar>
+
+                                <div>
+                                    <Title
+                                        level={5}
+                                        style={{
+                                            color: '#d1d5db',
+                                            margin: 0
+                                        }}
+                                    >
+                                        {n.title}
+                                    </Title>
+
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
+                                    </Text>
+                                </div>
+                            </div>
+
+                            {/* Right side - time */}
+                            <Text
+                                style={{
+                                    color: '#cbd5e1',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
+                        </div>
+                    </Card>
+                )
+            case "NEW_ARRIVAL":
+                return (
+                    <Card className='notification-card'>
+                        {n.recipient_role_id === "R2" ? (
+                            <Card className="notification-card">
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'flex-start',
+                                        gap: '20px'
+                                    }}
+                                >
+                                    {/* Left side */}
+                                    <div className="notification-content">
+                                        <Avatar
+                                            size={50}
+                                            style={{ background: '#203329' }}
+                                        >
+                                            <LuBookOpenCheck color="#4ADE80" />
+                                        </Avatar>
+
+                                        <div>
+                                            <Title
+                                                level={5}
+                                                style={{
+                                                    color: '#d1d5db',
+                                                    margin: 0
+                                                }}
+                                            >
+                                                {n.title}
+                                            </Title>
+
+                                            <Text style={{ color: '#cbd5e1' }}>
+                                                {n.message}
+                                            </Text>
+                                        </div>
+                                    </div>
+
+                                    {/* Right side - time */}
+                                    <Text
+                                        style={{
+                                            color: '#cbd5e1',
+                                            whiteSpace: 'nowrap',
+                                            fontSize: '12px'
+                                        }}
+                                    >
+                                        {dayjs(n.created_at).fromNow()}
+                                    </Text>
+                                </div>
+                            </Card>
+                        ) : <></>}
+                    </Card>
+                )
+            case "REJECTED_REQUEST":
+                return (
+                    <Card className="notification-card">
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '20px'
+                            }}
+                        >
+                            <div className="notification-content">
+                                <Avatar
+                                    size={50}
+                                    style={{
+                                        background: '#3B2525'
+                                    }}
+                                >
+                                    <MdCancel
+                                        color="#F87171"
+                                        size={24}
+                                        style={{paddingTop: '8px'}}
+                                    />
+                                </Avatar>
+
+                                <div>
+                                    <Title
+                                        level={5}
+                                        style={{
+                                            color: '#d1d5db',
+                                            margin: 0
+                                        }}
+                                    >
+                                        {n.title}
+                                    </Title>
+
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
+                                    </Text>
+                                </div>
+                            </div>
+
+                            <Text
+                                style={{
+                                    color: '#cbd5e1',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
+                        </div>
+                    </Card>
+                )
         }
     }
 
     return (
-        <div style={{
-            background: '#242424',
-            minHeight: '120vh'
-        }}>
+        <div className='layout-bg'>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
+
             <div style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                margin: '8px 12px'
+                margin: '8px 16px', padding: '5px 10px'
             }}>
-                <Avatar shape='square' size={42} style={{
-                    background: '#dc2626', textAlign: 'center',
-                    boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
-                    borderRadius: '10px', padding: '10px',
-                }}
-                >
-                    <TbBooks style={{
-                        color: '#ffffff', cursor: 'pointer',
-                        marginTop: '5px'
-                    }} size={22} />
-                </Avatar>
-                <Title level={4} style={{ color: '#fff' }}>Notifications</Title>
-
-                <Tag style={{
-                    color: '#ffffff', background: '#dc2626', borderRadius: '12px'
-                }}>{notifications.length} new</Tag>
+                <Title level={4} style={{ color: '#f1f5f9' }}>Notifications</Title>
+                <Text style={{ color: '#cbd5e1' }}>Stay updated with your latest activity and alerts.</Text>
             </div>
-            <Divider style={{borderColor: '#3f3f46'}}></Divider>
             <div>
-                {category.map((cat) => (
-                    <Tag
-                        key={cat}
-                        onClick={() => {
-                            setSelectCategory(cat)
-                        }}
-                        style={{
-                            cursor: 'pointer',
-                            fontSize: '14px', borderRadius: '6px', padding: '4px 12px',
-                            fontWeight: '500px', margin: '20px 10px',
-                            background: selectCategory === cat ? '#dc2626' : '#3f3f46',
-                        }}><Text
-                        style={{
-                            color: selectCategory === cat ? '#ffffff' : '#d1d5db',
-                            background: selectCategory === cat ? '#dc2626' : '#3f3f46',
-                            display: 'flex', alignItems: 'center', gap:'5px'
-                        }}
-                        >{cat !== "All" && categoryIcons[cat]} {cat}</Text>
-                    </Tag>
-                ))}
-            </div>
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: '20px',
+                    margin: '14px 16px'
+                }}>
+                    {category.map((cat) => {
+                        const count =
+                            cat === 'All'
+                                ? notifications.length
+                                : notifications.filter((item) => item.type === cat).length
+                        return (
+                            <Tag style={{
+                                padding: '5px 12px',
+                                borderRadius: '5px',
+                                fontSize: '13px',
+                                fontWeight: '500',
+                                color: selectCategory === cat ? '#ffffff' : '#d1d5db',
+                                background: selectCategory === cat ? 'linear-gradient(135deg, #5B21B6, #7C3AED)' : '#3f3f46',
+                                borderColor: selectCategory === cat ? '#713fe0' : '#555555',
+                                display: 'flex', gap: '6px', alignItems: 'center', cursor: 'pointer'
+                            }}
+                                key={cat}
+                                onClick={() => setSelectCategory(cat)}
+                            >
+                                {cat.replace(/_/g, ' ')} {count}
+                            </Tag>
+                        )
+                    })}
+                </div>
 
-            <div>
-                {notifications.filter(notification =>
-                    selectCategory === 'All'? true : notification.category === selectCategory
-                ).map((n, index)=>(
-                    <Card style={{
-                        background: '#2C2C2C',
-                        margin:'24px 24px',
-                        borderColor: '#BFBFBF'
-                    }}>
-                        <div>
-                            <Title level={4} style={{color: '#fff'}}>
-                            <span style={{
-                                fontSize: '14pt',
-                            }}>{n.category !== "All" && categoryIcons[n.category]}</span> {n.title}
-                            </Title>
-                            {renderNotification(n)}
+                <div>
+                    {notifications.filter((n) => {
+                        if (selectCategory === "All") {
+                            return true
+                        }
+
+                        return n.type === selectCategory
+                    }).map((n) => (
+                        <div key={n._id}>
+                            {notificationCategory(n)}
                         </div>
-                    </Card>
-                ))}
+                    ))}
+                </div>
             </div>
         </div>
-    );
+    )
 };
 
 export default Notification;

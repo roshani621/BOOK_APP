@@ -2,7 +2,6 @@ const API = {
     BOOKS: "/books",
     ADD_BOOK: "/add-book",
     UPDATE_BOOK: "/update-book",
-
     BOOK_REQUEST: "/book-request",
     BORROW_REQUEST: "/borrow-request",
     REQUEST: "/request",
@@ -15,7 +14,8 @@ const API = {
 
     NOTIFICATION: "/notification",
 
-    BOOKS_COUNT: "/books-count"
+    BOOKS_COUNT: "/books-count",
+    BOOK_RETURN: "/return-book"
 };
 
 export default API;

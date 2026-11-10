@@ -50,7 +50,7 @@ def login():
             "b_role_id": user["role_id"]
         }
     )
-    print(token)
+    
     return jsonify({
         "status": True,
         "message":"Login Successfully",
@@ -75,7 +75,7 @@ def register():
         file_path = None
 
     last_user = user_col.find_one({"id": {"$regex": "^U"}}, sort=[("id", -1)])
-    print(last_user)
+    
 
     if not last_user:
         new_id = 'U'+ '0000000001'
@@ -89,7 +89,6 @@ def register():
     email = request.form.get('email')
     phone = request.form.get('phone')
     
-    print(username, email, phone)
     
     user_col.insert_one({
         "id": new_id,
@@ -180,7 +179,6 @@ def User_Profile(user_id):
     for item in user:
         item["_id"] = str(item["_id"])
 
-    print(user)
     if not user:
         return jsonify({"message": "User not found"}), 404
 

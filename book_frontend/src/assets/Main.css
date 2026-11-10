@@ -113,3 +113,57 @@
     font-weight: 900px;
 }
 
+.global-search{
+    background-color: #292524;
+    color: #d1d5db;
+    border-color: #3f3f46;
+    width: 290px;
+}
+.global-search:hover {
+    background-color: #292524 !important;
+    color: #d1d5db;
+    border-color: #3f3f46;
+    width: 290px;
+}
+
+.global-search input{
+    background-color: #292524;
+}
+
+.global-search input::placeholder{
+    color: #d1d5db;
+}
+
+.search-result{
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    padding: 8px 10px;
+}
+.search-result:hover {
+    background: #292524;
+}
+
+
+.search-dropdown{
+    width: 350px;
+    max-height: 400px;
+    background: #1c1917;
+    overflow-y: auto;
+    border-radius: 9px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45);
+}
+
+
+.book-name {
+    color: #d1d5db;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 20px;
+}
+
+.book-id {
+    color: #9ca3af;
+    font-size: 10px;
+    margin-top: 3px;
+}

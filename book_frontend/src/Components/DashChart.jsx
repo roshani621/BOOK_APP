@@ -164,12 +164,12 @@ const DashChart = () => {
                     marginLeft: '5px'
                   }}/>
                 </Title>
-                <Title level={4} level={1}
+                <Title level={4}
                 style={{
                     color:"#fff",
                     marginTop:10,
                     marginBottom:15
-                }}>Welcome back, {getInitials(user.username)}</Title>
+                }}>Welcome back, {user.username}</Title>
                 <Text style={{color:"#BFBFBF", fontSize:17}}>
                     Your library has {data.total_books} books across 6 genres
                 </Text>
@@ -245,7 +245,7 @@ const DashChart = () => {
               ].map((item, index) => (
                 <Card key={index} style={{
                   width: '300px', height:'150px' ,margin: '0px', padding: '0px', background: '#232323',
-                  borderColor:'#BFBFBF'
+                  borderColor:'#3A3A3D'
                 }} hoverable>
                     <div style={{display: 'flex', flexDirection:'column', alignItems:'center',
                       gap: '10px'
@@ -278,16 +278,17 @@ const DashChart = () => {
               cursor: 'pointer',
               color: selectedCategory === cat ? '#ffffff' : '#d1d5db',
               background: selectedCategory === cat ? '#dc2626' : '#3f3f46',
+              borderColor: selectedCategory === cat ? '#B91C1C' : '#555555',
               fontSize: '13px', borderRadius: '999px', padding: '4px 12px',
               fontWeight: '500px', margin: '20px 10px'
             }}>{cat}</Tag>
         ))}
       </div>
-      <div style={{ background: '#2C2C2C' }}>
+      <div style={{ background: '#232323' }}>
           <Row>
             <Col style={{
               display: 'flex', flexWrap: 'wrap', justifyContent: 'center',
-              background: '#2C2C2C', gap: '40px',marginTop: '20px'
+              background: '#232323', gap: '40px',marginTop: '20px'
             }}>
               {books.filter(book => 
               selectedCategory === "All"? true: book.category === selectedCategory)
@@ -298,9 +299,8 @@ const DashChart = () => {
                     style={{
                       width: '220px',
                       borderRadius: '20px',
-                      border: '1px solid #fecaca',
                       overflow: 'hidden',
-                      background: '#232323',
+                      background: '#3f3f46',
                       transition: '0.3s',
                       boxShadow: '0 4px 14px rgba(0,0,0,0.05)',
                       borderColor: '#232323'
