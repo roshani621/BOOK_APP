@@ -617,3 +617,59 @@ def Return_Book():
             "status": "Returned",
         }
     }), 200
+
+@borrow_request_api.route("/popular-books", methods=["GET"])
+def popular_books():
+
+    pipeline = [
+
+        # 1. Group requests by book ID
+        {
+            "$group": {
+                "_id": "$book_id",
+                "total_requests": {"$sum": 1}
+            }
+        },
+
+        # 2. Join with Books collection
+        {
+            "$lookup": {
+                "from": "Books",
+                "localField": "_id",
+                "foreignField": "id",
+                "as": "book_details"
+            }
+        },
+
+        # 3. Convert array into object
+        {
+            "$unwind": "$book_details"
+        },
+
+        # 4. Select required fields
+        {
+            "$project": {
+                "_id": 0,
+                "book_id": "$_id",
+                "book_name": "$book_details.book_name",
+                "author": "$book_details.author",
+                "total_requests": 1
+            }
+        },
+
+        # 5. Highest requests first
+        {
+            "$sort": {
+                "total_requests": -1
+            }
+        },
+
+        # 6. Only top 5
+        {
+            "$limit": 3
+        }
+    ]
+
+    result = list(borrow_request_col.aggregate(pipeline))
+
+    return jsonify(result), 200

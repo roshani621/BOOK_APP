@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FaArrowLeft, FaRegUser, FaPhone  } from "react-icons/fa6";
+import { FaArrowLeft, FaRegUser, FaPhone, FaBookOpen, FaUsers } from "react-icons/fa6";
 import { TbShieldCheck } from "react-icons/tb";
-import { Avatar, Card, Divider, Tag, Typography, Button} from 'antd';
+import { Avatar, Card, Divider, Tag, Typography, Button, Row, Col, Progress } from 'antd';
 import { CiMail } from "react-icons/ci";
 import { GoPencil } from "react-icons/go";
 import { IoWarning } from "react-icons/io5";
@@ -9,15 +9,22 @@ import { CiCalendarDate } from "react-icons/ci";
 import { useNavigate } from 'react-router-dom';
 import '../assets/Common.css';
 import { getAPI } from '../APIS/api';
+import { LuBookCopy } from "react-icons/lu";
+import { MdCollectionsBookmark } from "react-icons/md";
+
 import { SlBookOpen } from "react-icons/sl";
 import { SiBookstack } from "react-icons/si";
 import { FaCircleCheck } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import { IoStatsChart } from "react-icons/io5";
 import { FiClock } from "react-icons/fi";
+import { LuUserRound } from "react-icons/lu";
+import { IoDocumentTextOutline } from "react-icons/io5";
+
 import API from '../APIS/endpoints';
 
 const { Title, Text } = Typography;
+const { Meta } = Card;
 const Profile = () => {
 
     const [user, setUser] = useState([]);
@@ -62,12 +69,26 @@ const Profile = () => {
         }
     }
 
+    const fetchPopularBooks = async () => {
+        try {
+            const res = await getAPI(API.POPULAR_BOOKS);
+            console.log(res);
+            setRequests(res.data);
+        } catch (err) {
+            console.log("something went wrong", err);
+        }
+    }
+
     useEffect(() => {
         fetchCount();
     }, []);
 
+    useEffect(()=>{
+        fetchPopularBooks();
+    },[]);
+
     return (
-        <div style={{ background: '#171717', minHeight:'140vh'}}>
+        <div style={{ background: '#171717', minHeight: '140vh' }}>
             <div
                 style={{
                     position: 'relative',
@@ -131,230 +152,146 @@ const Profile = () => {
                         </div>
                     </div>
                 </Card>
-                <div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '20px',
-                            margin: '12px 16px',
-                            marginTop:'30px'
-                        }}
-                    >
-                        <Card className='pr-card' hoverable>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div>
-                                    <Avatar style={{ background: '#990000' }} size={46}><SiBookstack /></Avatar>
-                                </div>
-                                <div>
-                                    <Title level={5} style={{ color: '#999999' }}>Total</Title>
-                                    <Title level={3} style={{
-                                        color: '#BFBFBF', marginTop: 0
-                                    }}>{counts.borrow_count || 0}</Title>
-                                </div>
-                            </div>
-                        </Card>
 
-                        <Card className='pr-card' hoverable>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div>
-                                    <FaCircleCheck style={{
-                                        color: '#22C55E',
-
-                                    }} size={40} />
-                                </div>
-                                <div>
-                                    <Title level={5} style={{ color: '#999999' }}>Approved</Title>
-                                    <Title level={3} style={{
-                                        color: '#BFBFBF', marginTop: 0
-                                    }}>{counts.approved_requests || 0}</Title>
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className='pr-card' hoverable>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div>
-                                    <MdCancel size={40} style={{ color: '#f71c0c' }} />
-                                </div>
-                                <div>
-                                    <Title level={5} style={{ color: '#999999' }}>Rejected</Title>
-                                    <Title level={3} style={{
-                                        color: '#BFBFBF', marginTop: 0
-                                    }}>{counts.reject_requests || 0}</Title>
-
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className='pr-card' hoverable>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div>
-                                    <Avatar style={{background: '#E98A0A'}}
-                                    size={40}
-                                    ><FiClock style={{paddingTop: '5px'}}/></Avatar>
-                                </div>
-                                <div>
-                                    <Title level={5} style={{ color: '#999999' }}>Pending</Title>
-                                    <Title level={3} style={{
-                                        color: '#BFBFBF', marginTop: 0
-                                    }}>{counts.pending_requests || 0}</Title>
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className='pr-card' hoverable>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div>
-                                    <Avatar style={{background: 'red'}}
-                                    size={40}
-                                    ><IoWarning style={{paddingTop: '5px'}}/></Avatar>
-                                </div>
-                                <div>
-                                    <Title level={5} style={{ color: '#999999' }}>Overdue</Title>
-                                    <Title level={3} style={{
-                                        color: '#BFBFBF', marginTop: 0
-                                    }}>{counts.overdue_count || 0}</Title>
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className='pr-card' hoverable>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div>
-                                    <Avatar style={{background: '#6082B6'}}
-                                    size={40}
-                                    ><SlBookOpen style={{paddingTop: '10px'}} /></Avatar>
-                                </div>
-                                <div>
-                                    <Title level={5} style={{ color: '#999999' }}>Returned</Title>
-                                    <Title level={3} style={{
-                                color: '#BFBFBF', marginTop: 0
-                            }}>{counts.returned_count || 0}</Title>
-                            
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
                 <div style={{
-                textAlign: 'center',
-                display: 'grid',
-                gridTemplateColumns: '45% 45%',
-                gap: '20px',
-                justifyContent: 'center',
-                marginTop:'30px'
-            }}>
-                <Card hoverable
-                    style={{
-                        background: '#232323',
+                    display: 'grid', gridTemplateColumns: 'repeat(4, 300px)',
+                    justifyContent: 'center', gap: '30px', margin: '30px'
+                }}>
+                    <Card style={{
+                        background: '#232323', borderRadius: '12px',
                         borderColor: '#3A3A3D',
-                        padding: '10px 12px', margin: '8px 12px',
-                        borderRadius: '12px'
-                    }}
-
-                    title={
-                        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                            <div style={{display: 'flex', gap: '10px', alignItems: 'center',
+                    }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <Avatar size={60} style={{
+                                color: '#DC2626', borderColor: '#681F25',
+                                background: '#291719', paddingTop: '10px'
+                            }}><FaBookOpen size={30} /></Avatar>
+                            <div style={{
+                                display: 'flex', flexDirection: 'column',
                             }}>
-                                <Avatar
-                                style={{background: '#991b1b'}}
-                                ><FaRegUser style={{color: '#FFFFFF'}}/></Avatar>
-                                <Title level={5}
-                                style={{color:'#FFFFFF',
-                                        fontWeight: 500, fontSize: '17px'
-                                    }}
-                                >Account Info</Title>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.total_books}</Title>
+                                <Text style={{ color: '#BFBFBF' }}>Total Book Copies</Text>
                             </div>
-                            <Button style={{background: '#232323', borderColor: '#FFFFFF',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                
-                            }}>
-                                <GoPencil color='#FFFFFF' size={15}/> <Text 
-                                style={{color:'#FFFFFF',
-                                    fontWeight: 400, fontSize: '15px'
-                                }} >Edit</Text>
-                            </Button>
                         </div>
-                        
-                    }
-                >
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
+                    </Card>
+                    <Card style={{
+                        background: '#232323', borderRadius: '12px',
+                        borderColor: '#3A3A3D',
+                    }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <Avatar size={60} style={{
+                                color: '#DC2626', borderColor: '#681F25',
+                                background: '#291719', paddingTop: '10px'
+                            }}><LuBookCopy size={30} /></Avatar>
+                            <div style={{
+                                display: 'flex', flexDirection: 'column',
+                            }}>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.available_books}</Title>
+                                <Text style={{ color: '#BFBFBF' }}>Available Book Copies</Text>
+                            </div>
+                        </div>
+                    </Card>
+                    <Card style={{
+                        background: '#232323', borderRadius: '12px',
+                        borderColor: '#3A3A3D',
+                    }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <Avatar size={60} style={{
+                                color: '#DC2626', borderColor: '#681F25',
+                                background: '#291719', paddingTop: '10px'
+                            }}><MdCollectionsBookmark size={30} /></Avatar>
+                            <div style={{
+                                display: 'flex', flexDirection: 'column',
+                            }}>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.books_count}</Title>
+                                <Text style={{ color: '#BFBFBF' }}>Total Books Count</Text>
+                            </div>
+                        </div>
+                    </Card>
+                    <Card style={{
+                        background: '#232323', borderRadius: '12px',
+                        borderColor: '#3A3A3D',
+                    }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <Avatar size={60} style={{
+                                color: '#DC2626', borderColor: '#681F25',
+                                background: '#291719', paddingTop: '10px'
+                            }}><IoDocumentTextOutline size={30} /></Avatar>
+                            <div style={{
+                                display: 'flex', flexDirection: 'column',
+                            }}>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.total_borrow}</Title>
+                                <Text style={{ color: '#BFBFBF' }}>Total Requests</Text>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                <div style={{display: 'flex', justifyContent: 'space-evenly', alignItems:'center'}}>
+                    <Card style={{
+                        background: '#232323', borderRadius: '12px',
+                        borderColor: '#3A3A3D',
+                    }}>
+                        <Title level={4} style={{ color: '#FFFFFF' }}>Borrow Request Overview</Title>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(2, 300px)',
+                            gap: '15px'
                         }}>
-                        <div className='card-inner-text'>
-                            <div className='card-inner'>
-                                <CiMail className='pr-icon' />
-                                <Title level={5} style={{ color: '#BFBFBF' }} type='secondary'>Email</Title>
-                            </div>
-                            <Text strong style={{ color: '#BFBFBF' }}>{user.email}</Text>
+                            <Card style={{
+                                background: '#232323', borderRadius: '12px',
+                                borderColor: '#3A3A3D',
+                            }}>
+                                <Text style={{ color: '#e8b339' }}>Pending</Text>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.pending_requests}</Title>
+                            </Card>
+                            <Card style={{
+                                background: '#232323', borderRadius: '12px',
+                                borderColor: '#3A3A3D',
+                            }}>
+                                <Text style={{ color: '#49aa19' }}>Approved</Text>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.approved_requests}</Title>
+                            </Card>
+                            <Card style={{
+                                background: '#232323', borderRadius: '12px',
+                                borderColor: '#3A3A3D',
+                            }}>
+                                <Text style={{ color: '#d32029' }}>Rejected</Text>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.reject_requests}</Title>
+                            </Card>
+                            <Card style={{
+                                background: '#232323', borderRadius: '12px',
+                                borderColor: '#3A3A3D',
+                            }}>
+                                <Text style={{ color: '#263ea0' }}>Returned</Text>
+                                <Title level={4} style={{ color: '#FFFFFF' }}>{counts.returned_count}</Title>
+                            </Card>
                         </div>
-                        <Divider style={{borderColor: '#3a3a3a', margin : 3}}/>
-                        <div className='card-inner-text'>
-                            <div className='card-inner'>
-                                <FaPhone className='pr-icon' />
-                                <Title level={5} type='secondary' style={{ color: '#BFBFBF' }}>Phone</Title>
-                            </div>
-                            <Text style={{ color: '#BFBFBF' }} strong>{user.phone}</Text>
-                        </div>
-                        <Divider style={{borderColor: '#3a3a3a', margin : 3}}/>
-                        <div className='card-inner-text'>
-                            <div style={{display: 'flex', gap: '10px'}}>
-                                <CiCalendarDate style={{color: '#BFBFBF', }} size={25}/>
-                                <Title style={{ color: '#BFBFBF' }} level={5} type='secondary'>Since</Title>
-                            </div>
-                            <Text style={{ color: '#BFBFBF' }} strong>{formatDate(user.created_at)}</Text>
-                        </div>
-                    </div>
-                </Card>
+                    </Card>
 
-
-                <Card hoverable style={{
-                    background: '#232323', borderRadius: '12px',
-                    borderColor: '#3A3A3D', padding: '10px 12px', margin: '8px 12px'
-                }}
-                title={
-                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                        <Avatar shape='square' size={40} style={{background: '#991b1b'}}
-                        ><IoStatsChart size={20} style={{ color: '#FFF',
-                            paddingTop: '5px'
-                         }}/></Avatar>
-                        <Title level={5} style={{ color: '#BFBFBF' }}>Library Activity</Title>
-
-                    </div>
-                }
-                >
-    
-                    <div className='card-inner-text'>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                            <Avatar shape='circle' size={15} style={{ background: '#f71c0c' }}></Avatar>
-                            <Title style={{ color: '#BFBFBF' }} level={5}>Borrowed Count</Title>
-                        </div>
-                        <Text style={{ color: '#BFBFBF' }}>{counts.borrow_count || 0}</Text>
-                    </div>
-                    <Divider style={{borderColor: '#3a3a3a', margin : 3}}/>
-                    <div className='card-inner-text'>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                            <Avatar shape='circle' size={15} style={{ background: '#22C55E' }}></Avatar>
-                            <Title style={{ color: '#BFBFBF' }} level={5}>Returned Count</Title>
-                        </div>
-                        <Text style={{ color: '#BFBFBF' }}>{counts.returned_count || 0}</Text>
-                    </div>
-                    <Divider style={{borderColor: '#3a3a3a', margin : 3}}/>
-                    <div className='card-inner-text'>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                            <Avatar shape='circle' size={15} style={{ background: '#E98A0A' }}></Avatar>
-                            <Title style={{ color: '#BFBFBF' }} level={5}>Overdue Count</Title>
-                        </div>
-                        <Text style={{ color: '#BFBFBF' }}>{counts.overdue_count || 0}</Text>
-                    </div>
-                </Card>
+                    <Card style={{
+                        background: '#232323', borderRadius: '12px',
+                        borderColor: '#3A3A3D', width: '600px'
+                    }}>
+                        <Title level={4} style={{color: '#FFFFFF'}}>Most Popular Books</Title>
+                        <Text style={{color: '#BFBFBF'}}>Books ranked by total borrow requests</Text>
+                        {requests.map((request)=>(
+                            <div style={{marginTop: '12px',}}>
+                                <Title style={{color: '#FFFFFF'}} level={5}>{request.book_name}</Title>
+                                <Text style={{color: '#BFBFBF'}}>{request.author}</Text><br />
+                                <Progress percent={request.total_requests} showInfo={false}
+                                style={{width: '300px'}}
+                                />
+                            </div>
+                        ))}
+                    </Card>
+                </div>
             </div>
-            </div>
-
-            
         </div>
+
+
+
     );
 };
 
-export default Profile;
+export default Profile; 

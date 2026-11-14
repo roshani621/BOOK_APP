@@ -10,7 +10,7 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { FaUser } from 'react-icons/fa';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { LuBookOpenCheck } from 'react-icons/lu';
+import { LuBookOpenCheck, LuUserRoundPlus } from 'react-icons/lu';
 
 dayjs.extend(relativeTime);
 const { Title, Text } = Typography;
@@ -340,6 +340,60 @@ const Notification = () => {
                                     }}
                                 >
                                     <MdCancel
+                                        color="#F87171"
+                                        size={24}
+                                        style={{paddingTop: '8px'}}
+                                    />
+                                </Avatar>
+
+                                <div>
+                                    <Title
+                                        level={5}
+                                        style={{
+                                            color: '#d1d5db',
+                                            margin: 0
+                                        }}
+                                    >
+                                        {n.title}
+                                    </Title>
+
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
+                                    </Text>
+                                </div>
+                            </div>
+
+                            <Text
+                                style={{
+                                    color: '#cbd5e1',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
+                        </div>
+                    </Card>
+                )
+            case "USER_REGISTERED":
+                return (
+                    <Card className="notification-card">
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '20px'
+                            }}
+                        >
+                            <div className="notification-content">
+                                <Avatar
+                                    size={50}
+                                    style={{
+                                        background: '#3B2525'
+                                    }}
+                                >
+                                    <LuUserRoundPlus
                                         color="#F87171"
                                         size={24}
                                         style={{paddingTop: '8px'}}

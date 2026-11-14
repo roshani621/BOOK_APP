@@ -92,22 +92,19 @@ def BooksCount():
     user_count = user_col.count_documents({})
 
     total_borrow = borrow_request_col.count_documents({})
+
+    books_count = book_col.count_documents({})
     
     if role_id == 'R1':
         pending_count = borrow_request_col.count_documents({"status": "Pending"})
 
         approved_count = borrow_request_col.count_documents({"status": "Approved"})
-
+    
         rejected_count = borrow_request_col.count_documents({"status": "Rejected"})
 
         borrow_count = borrow_request_col.count_documents({})
         
-        overdue_count = borrow_request_col.count_documents({
-            "status": "Approved",
-            "overdue_date": {
-                "$lt": datetime.utcnow()
-            }
-        })
+        overdue_count = borrow_request_col.count_documents({"status": "Overdue"})
 
         returned_count = borrow_request_col.count_documents({
             "status": "Returned",
@@ -147,10 +144,8 @@ def BooksCount():
                 })
 
         returned_count = borrow_request_col.count_documents({
-                    "status": "Returned",
-                    "return_date": {
-                        "$lt": datetime.utcnow()
-                    }
+                    "user_id": user_id,
+                    "status": "Returned"
                 })
         borrow_count = borrow_request_col.count_documents({"user_id":user_id})
     else:
@@ -161,6 +156,7 @@ def BooksCount():
 
     print("overdue",  overdue_count)
     return jsonify({
+        "books_count": books_count,
         "total_books": total_books,
         "available_books": available_books,
         "total_borrow": total_borrow,

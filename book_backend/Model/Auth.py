@@ -3,7 +3,8 @@ import bcrypt
 import os, uuid
 from werkzeug.utils import secure_filename
 from datetime import datetime
-from DB import user_col, role_col
+from DB import user_col, role_col, notification_col
+from Notifications import Generate_Notification_Id
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -102,6 +103,25 @@ def register():
         "updated_at": datetime.utcnow(),
         "photo": file_path,
     })
+
+    notification_col.insert_one(
+        {
+            "notification_id": Generate_Notification_Id(),
+            "user_id": new_id,
+            "username": username,
+            "email": email,
+
+            "title": "New User Registered",
+            "message": f"{username} has joined the library.",
+
+            "type": "USER_REGISTERED",
+            "recipient_role_id": "R1",
+
+            "is_read": "false",
+            "created_at": datetime.utcnow()
+        }
+    )
+    
 
     return jsonify({
         "message": "Registration Successful",

@@ -15,7 +15,8 @@ const API = {
     NOTIFICATION: "/notification",
 
     BOOKS_COUNT: "/books-count",
-    BOOK_RETURN: "/return-book"
+    BOOK_RETURN: "/return-book",
+    POPULAR_BOOKS: "/popular-books"
 };
 
 export default API;

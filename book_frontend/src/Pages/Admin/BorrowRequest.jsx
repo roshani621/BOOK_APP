@@ -199,9 +199,12 @@ const BorrowRequest = () => {
             key: 'request_date',
             render: (_, book) => (
                 <div>
-                    <Text>
-                        {book.request_date ? <Text className='table-date'>{new Date(book.request_date).toLocaleDateString()}</Text> :
-                            <Text className='table-date'> - </Text>}
+                    <Text className='table-date'>Request for {book.borrow_days} days</Text><br />
+                    <Text className='table-date'>
+                        {book.request_date ? 
+                            dayjs(book.request_date).format('MMM DD, YYYY') :'-'    
+                        }
+                        
                     </Text>
                 </div>
             )
@@ -211,9 +214,10 @@ const BorrowRequest = () => {
             key: 'due_date',
             render: (_, book) => (
                 <div>
-                    <Text>
-                        {book.due_date ? <Text className='table-date'>{new Date(book.due_date).toLocaleDateString()}</Text> :
-                            <Text className='table-date'> - </Text>}
+                    <Text className='table-date'>
+                        {book.due_date ? 
+                            dayjs(book.due_date).format('MMM DD, YYYY') :'-'    
+                        }
                     </Text>
                 </div>
             )
@@ -223,9 +227,10 @@ const BorrowRequest = () => {
             key: 'return_date',
             render: (_, book) => (
                 <div>
-                    <Text>
-                        {book.return_date ? <Text className='table-date'>{new Date(book.return_datejgv).toLocaleDateString()}</Text> :
-                            <Text className='table-date'> - </Text>}
+                    <Text className='table-date'>
+                        {book.return_date ? 
+                            dayjs(book.return_date).format('MMM DD, YYYY') :'-'    
+                        }
                     </Text>
                 </div>
             )
@@ -378,7 +383,7 @@ const BorrowRequest = () => {
                                         <Title level={2} style={{
                                             color: '#F8FAFC', fontWeight: '600', margin: '0px',
                                             fontSize: '28px'
-                                        }}>{count.borrow_count}</Title>
+                                        }}>{count.pending_requests}</Title>
                                         <Text style={{
                                             color: '#d1d5db',
                                             fontSize: '13px'
