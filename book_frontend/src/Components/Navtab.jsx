@@ -16,7 +16,9 @@ const Navtab = ({ onMenuClick }) => {
 
     const [name, setName] = useState({});
     const [search, setSearch] = useState("");
-    const [count, setCount] = useState("");
+    const [count, setCount] = useState([]);
+    const id = localStorage.getItem('b_user_id');
+    const user_role = localStorage.getItem('b_role_id');
     const [searchResult, setSearchResult] = useState({
         books: [],
         users: [],
@@ -58,14 +60,21 @@ const Navtab = ({ onMenuClick }) => {
         }
     }
 
-    const notificationCount = async () => {
+    const filteredNotification = async () => {
         try {
             const res = await getAPI(API.NOTIFICATION);
             setCount(res.data.notification);
+            console.log(res.data.notification)
         } catch (err) {
             console.log(err)
         }
     }
+
+    const notificationCount = count.filter(
+        (n) =>
+            n.recipient_id === id &&
+            n.recipient_role_id === user_role
+    );
 
     const getInitials = (name) => {
         return name?.split(' ').map(word => word[0]).join('').toUpperCase();
@@ -73,7 +82,7 @@ const Navtab = ({ onMenuClick }) => {
     const user_id = localStorage.getItem('b_user_id');
     useEffect(() => {
         fetchUserProfile();
-        notificationCount();
+        filteredNotification();
     }, []);
 
     useEffect(() => {
@@ -140,9 +149,9 @@ const Navtab = ({ onMenuClick }) => {
                                 <GoBell style={{ color: '#ffffff', cursor: 'pointer'}} size={35}
                                     onClick={() => { navigate('/notification') }} 
                                 />
-                                {count.length > 0 && (
+                                {notificationCount.length > 0 && (
                                     <span className="notification-count">
-                                        {count.length}
+                                        {notificationCount.length}
                                     </span>
                                 )}
                             </div>

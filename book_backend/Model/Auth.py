@@ -65,7 +65,6 @@ def login():
 @auth_api.route('/register', methods=['POST'])
 def register():
     file =  request.files.get('photo')
-    print(file)
 
     if file: 
         filename = str(uuid.uuid4())+"-"+ secure_filename(file.filename)

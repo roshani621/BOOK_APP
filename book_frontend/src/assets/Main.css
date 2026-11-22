@@ -14,28 +14,53 @@
 }
 
 .form{
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: #1E2631;
     backdrop-filter: blur(12px);
 }
 
 .form-page{
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('./patrick-tomasso-5hvn-2WW6rY-unsplash.jpg');
-    backdrop-filter: blur(10px);
+    background: url('./Images/book_bg3.avif'); 
     background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    background-position: left;
     height: 100vh;
-    
+}
+
+.login-button{
+    background-color: #FF5A3C;
+    border-color: #C92D30;
+    margin-top: 17px;
+    color: #FFFFFF !important;
+}
+
+.login-button:hover{
+    background-color: #C92D30 !important;
+    border-color: #C92D30 !important;
+    color: #FFFFFF !important;
+}
+
+
+.login-title{
+    color: white !important;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 30px !important;
+    text-align: center;
+}
+
+.login-text-p{
+    color: #d1d5db !important;
+    font-size: 15px;
+    font-weight: 400;
+    text-align: left !important;
 }
 
 .register-page{
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(image11.jpg);
-    backdrop-filter: blur(10px);
+    background: url(./Images/book_bg4.jpg);
     background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    background-position: left;
+    margin-left: 80px;
+    margin-top: 80px;
     height: 100vh;
-    width: 100%;
 }
 
 *{
@@ -114,7 +139,7 @@
 }
 
 .global-search{
-    background-color: #292524;
+    background-color: #292524 !important;
     color: #d1d5db;
     border-color: #3f3f46;
     width: 290px;
@@ -126,9 +151,7 @@
     width: 290px;
 }
 
-.global-search input{
-    background-color: #292524;
-}
+
 
 .global-search input::placeholder{
     color: #d1d5db;

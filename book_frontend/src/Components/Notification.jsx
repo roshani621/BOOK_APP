@@ -10,7 +10,8 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { FaUser } from 'react-icons/fa';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { LuBookOpenCheck, LuUserRoundPlus } from 'react-icons/lu';
+import { LuBookOpenCheck, LuBookPlus, LuUserRoundPlus } from 'react-icons/lu';
+import { GoAlertFill } from 'react-icons/go';
 
 dayjs.extend(relativeTime);
 const { Title, Text } = Typography;
@@ -23,6 +24,9 @@ const Notification = () => {
     const showDrawer = () => setOpen(true);
     const closeDrawer = () => setOpen(false);
 
+    const user_id = localStorage.getItem('b_user_id');
+    const user_role = localStorage.getItem('b_role_id');
+
     const fetchNotifications = async () => {
         try {
             const res = await getAPI(API.NOTIFICATION);
@@ -33,6 +37,12 @@ const Notification = () => {
         }
     }
 
+    const userNotifications = notifications.filter(
+        (n) =>
+            n.recipient_id === user_id &&
+            n.recipient_role_id === user_role
+    );
+
     useEffect(() => {
         fetchNotifications();
     }, []);
@@ -40,14 +50,10 @@ const Notification = () => {
     const category = ["All", ...new Set(notifications.map(n => n.type))];
     console.log(category);
 
-    const getInitials = (name) => {
-        console.log(name)
-        return name?.split(' ').map(word => word[0]).join('').toUpperCase();
-    }
 
     const notificationCategory = (n) => {
         switch (n.type) {
-            case "BOOK_OVERDUE":
+            case "OVERDUE_BOOK":
                 return (
                     <Card className="notification-card">
                         <div
@@ -62,9 +68,9 @@ const Notification = () => {
                             <div className="notification-content">
                                 <Avatar
                                     size={50}
-                                    style={{ background: '#202F3F' }}
+                                    style={{ background: '#401A1A' }}
                                 >
-                                    <FaUser color="#60A5FA" />
+                                    <GoAlertFill color="#C92D30" />
                                 </Avatar>
 
                                 <div>
@@ -123,7 +129,7 @@ const Notification = () => {
                                 >
                                     <FaUser color="#60A5FA" style={{
                                         paddingTop: '10px'
-                                    }}/>
+                                    }} />
                                 </Avatar>
 
                                 <div>
@@ -230,11 +236,11 @@ const Notification = () => {
                             <div className="notification-content">
                                 <Avatar
                                     size={50}
-                                    style={{ background: '#203329'}}
+                                    style={{ background: '#203329' }}
                                 >
                                     <LuBookOpenCheck color="#4ADE80" style={{
                                         paddingTop: '10px'
-                                    }}/>
+                                    }} />
                                 </Avatar>
 
                                 <div>
@@ -270,55 +276,51 @@ const Notification = () => {
             case "NEW_ARRIVAL":
                 return (
                     <Card className='notification-card'>
-                        {n.recipient_role_id === "R2" ? (
-                            <Card className="notification-card">
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'flex-start',
-                                        gap: '20px'
-                                    }}
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '20px'
+                            }}
+                        >
+                            {/* Left side */}
+                            <div className="notification-content">
+                                <Avatar
+                                    size={50}
+                                    style={{ background: '#203329' }}
                                 >
-                                    {/* Left side */}
-                                    <div className="notification-content">
-                                        <Avatar
-                                            size={50}
-                                            style={{ background: '#203329' }}
-                                        >
-                                            <LuBookOpenCheck color="#4ADE80" />
-                                        </Avatar>
+                                    <LuBookPlus color="#4ADE80" style={{paddingTop: '10px'}}/>
+                                </Avatar>
 
-                                        <div>
-                                            <Title
-                                                level={5}
-                                                style={{
-                                                    color: '#d1d5db',
-                                                    margin: 0
-                                                }}
-                                            >
-                                                {n.title}
-                                            </Title>
-
-                                            <Text style={{ color: '#cbd5e1' }}>
-                                                {n.message}
-                                            </Text>
-                                        </div>
-                                    </div>
-
-                                    {/* Right side - time */}
-                                    <Text
+                                <div>
+                                    <Title
+                                        level={5}
                                         style={{
-                                            color: '#cbd5e1',
-                                            whiteSpace: 'nowrap',
-                                            fontSize: '12px'
+                                            color: '#d1d5db',
+                                            margin: 0
                                         }}
                                     >
-                                        {dayjs(n.created_at).fromNow()}
+                                        {n.title}
+                                    </Title>
+
+                                    <Text style={{ color: '#cbd5e1' }}>
+                                        {n.message}
                                     </Text>
                                 </div>
-                            </Card>
-                        ) : <></>}
+                            </div>
+
+                            {/* Right side - time */}
+                            <Text
+                                style={{
+                                    color: '#cbd5e1',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                {dayjs(n.created_at).fromNow()}
+                            </Text>
+                        </div>
                     </Card>
                 )
             case "REJECTED_REQUEST":
@@ -342,7 +344,7 @@ const Notification = () => {
                                     <MdCancel
                                         color="#F87171"
                                         size={24}
-                                        style={{paddingTop: '8px'}}
+                                        style={{ paddingTop: '8px' }}
                                     />
                                 </Avatar>
 
@@ -396,7 +398,7 @@ const Notification = () => {
                                     <LuUserRoundPlus
                                         color="#F87171"
                                         size={24}
-                                        style={{paddingTop: '8px'}}
+                                        style={{ paddingTop: '8px' }}
                                     />
                                 </Avatar>
 
@@ -433,7 +435,7 @@ const Notification = () => {
     }
 
     return (
-        <div className='layout-bg'>
+        <div className='layout-bg' style={{overflow: 'auto',}}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
 
@@ -451,8 +453,8 @@ const Notification = () => {
                     {category.map((cat) => {
                         const count =
                             cat === 'All'
-                                ? notifications.length
-                                : notifications.filter((item) => item.type === cat).length
+                                ? userNotifications.length
+                                : userNotifications.filter((item) => item.type === cat).length
                         return (
                             <Tag style={{
                                 padding: '5px 12px',
@@ -474,7 +476,7 @@ const Notification = () => {
                 </div>
 
                 <div>
-                    {notifications.filter((n) => {
+                    {userNotifications.filter((n) => {
                         if (selectCategory === "All") {
                             return true
                         }

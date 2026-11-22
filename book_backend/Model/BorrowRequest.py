@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from DB import book_col, borrow_request_col, notification_col, user_col
 from Socket import socketio
 from datetime import datetime, timedelta
-from Notifications import Generate_Notification_Id
+from Notifications import Notify_User, Notify_All_Admins
 import random
 from flask_jwt_extended import jwt_required, get_jwt
 
@@ -40,8 +40,88 @@ def Check_Overdue_Books():
                         "updated_at": now
                     }}
                 )
+
     except Exception as e:
         print("Error checking overdue books:", str(e))
+
+# Check overdue book and send user notification
+
+
+def Send_Overdue_Notification():
+    try:
+        overdue_requests = borrow_request_col.find({
+            "status": "Overdue",
+            "return_date": None
+        })
+
+        for borrow in overdue_requests:
+
+            # 1. Check member notification
+            existing_user = notification_col.find_one({
+                "request_id": borrow["request_id"],
+                "recipient_id": borrow["user_id"],
+                "type": "OVERDUE_BOOK"
+            })
+
+            # 2. Notify member
+            if not existing_user:
+                Notify_User(
+                    member_id=borrow["user_id"],
+                    notification_type="OVERDUE_BOOK",
+                    title="Book Overdue",
+                    message=(
+                        f"Your borrowed book '{borrow.get('book_name')}' "
+                        f"is overdue by {borrow.get('overdue_days')} days. "
+                        f"Your current fine is ₹{borrow.get('fine')}."
+                    ),
+                    request_id=borrow["request_id"],
+                    book_id=borrow.get("book_id"),
+                    book_name=borrow.get("book_name"),
+                    author=borrow.get("author"),
+                    member_name=borrow.get("username"),
+                    due_date=borrow.get("due_date"),
+                    overdue_days=borrow.get("overdue_days"),
+                    fine_per_day=borrow.get("fine_per_day"),
+                    fine=borrow.get("fine"),
+                    status="Overdue",
+                    actions=["View Details"]
+                )
+
+            # 3. Check admin notification
+            existing_admin = notification_col.find_one({
+                "request_id": borrow["request_id"],
+                "recipient_role_id": "R1",
+                "type": "OVERDUE_BOOK"
+            })
+
+            # 4. Notify admins only if notification doesn't exist
+            if not existing_admin:
+                Notify_All_Admins(
+                    notification_type="OVERDUE_BOOK",
+                    title="Book Overdue",
+                    message=(
+                        f"Member '{borrow.get('username')}' has an overdue book "
+                        f"'{borrow.get('book_name')}'. "
+                        f"Overdue by {borrow.get('overdue_days')} days. "
+                        f"Current fine: ₹{borrow.get('fine')}."
+                    ),
+                    request_id=borrow["request_id"],
+                    book_id=borrow.get("book_id"),
+                    book_name=borrow.get("book_name"),
+                    author=borrow.get("author"),
+                    member_id=borrow["user_id"],
+                    member_name=borrow.get("username"),
+                    due_date=borrow.get("due_date"),
+                    overdue_days=borrow.get("overdue_days"),
+                    fine_per_day=borrow.get("fine_per_day"),
+                    fine=borrow.get("fine"),
+                    status="Overdue",
+                    actions=["View Details"]
+                )
+
+    except Exception as e:
+        print("Error sending overdue notifications:", str(e))
+
 
 
 # borrow request raised by user
@@ -123,66 +203,68 @@ def BookRequest():
 
     borrow_request_col.insert_one(borrow_request)
 
-    user_notification = {
-        "notification_id": Generate_Notification_Id(),
-            
-        "recipient_id": user_id,
-        "recipient_role_id": "R2",
+    Notify_User(
 
-        "type": "BORROW_REQUEST",
+            user_id=user_id,
 
-        "title": "New Borrow Request",
-        "message": f"You raised request for {book_name}",
+            notification_type="BORROW_REQUEST",
 
-        "request_id": request_id,
-        "book_id": book_id,
-        "book_name": book_name,
-        "author": author,
-        "image": image,
+            title="Borrow Request Submitted",
 
-        "member_id": user_id,
-        "member_name": username,
-        "borrow_days": borrow_days,
+            message=f"You raised a borrow request for {book_name}.",
 
-        "status": "Pending",
-        "actions": ["View Details"],
-        "is_read": False,
-        "created_at": datetime.utcnow()
-    }
+            request_id=request_id,
+
+            book_id=book_id,
+            book_name=book_name,
+            author=author,
+            image=image,
+
+            member_id=user_id,
+            member_name=username,
+
+            borrow_days=borrow_days,
+            request_date=request_date,
+            due_date=due_date,
+
+            status="Pending",
+
+            actions=["View Details"]
+        )
+
     
-    notification_col.insert_one(user_notification)
-    
-    admin_notification = {
-        "notification_id": Generate_Notification_Id(),
+    admin_notification = Notify_All_Admins(
 
-        "recipient_role_id": "R1",
+            notification_type="BORROW_REQUEST",
 
-        "type": "BORROW_REQUEST",
+            title="New Borrow Request",
 
-        "title": "New Borrow Request",
-        "message": f"{username} raised request for {book_name}",
+            message=f"{username} raised a request for {book_name}.",
 
-        "request_id": request_id,
-        "book_id": book_id,
-        "book_name": book_name,
-        "author": author,
-        "image": image,
+            request_id=request_id,
 
-        "member_id": user_id,
-        "member_name": username,
-        "borrow_days": borrow_days,
+            book_id=book_id,
+            book_name=book_name,
+            author=author,
+            image=image,
 
-        "status": "Pending",
-        "actions": ["Approved", "Reject"],
-        "is_read": False,
-        "created_at": datetime.utcnow()
-        }
+            member_id=user_id,
+            member_name=username,
 
-    notification_col.insert_one(admin_notification)
+            borrow_days=borrow_days,
+            request_date=request_date,
+            due_date=due_date,
+
+            status="Pending",
+
+            actions=["Approve", "Reject"]
+        )
+
 
     return jsonify({
         "message": f"Request raised - {request_id}",
-        "due_date": due_date.strftime("%Y-%m-%d")
+        "due_date": due_date.strftime("%Y-%m-%d"),
+        "admin_notification_created": admin_notification
     }), 200
 
 
@@ -235,7 +317,8 @@ def BookBorrow():
                 "borrow_days":1,
                 "status": 1,
                 "created_at": 1,
-                "due_date": 1
+                "due_date": 1,
+                "return_date": 1
             }
         }
     ]
@@ -282,6 +365,7 @@ def RequestStatus():
     author = book.get("author")
     #admin details
     admin = user_col.find_one({"id": admin_id}, {"_id": 0, "username": 1})
+    admin_name = admin.get("username")
     
     requester_id = request_data["user_id"]
 
@@ -310,7 +394,7 @@ def RequestStatus():
             {"$set": {
                 "status": request_status,
                 "approved_by": admin_id,
-                "approver_username": admin.get("username"),
+                "approver_username": admin_name,
                 "approved_date": approved_date,
                 "updated_at": datetime.utcnow(),
                 "due_date": due_date
@@ -322,37 +406,33 @@ def RequestStatus():
             {"$inc": {"available_copies": -1}}
         )
 
-        
+        Notify_User(
 
-        #if user is normal user create notification
-        notification_col.insert_one(
-            {
-                "notification_id": Generate_Notification_Id(),
-                "recipient_id": requester_id,
-                "recipient_role_id": requester_role_id,
-        
-                "type": "APPROVED_REQUEST",
-                "title": "Borrow Request Approved",
-                "message": f"Your request for {book_name} has been Approved.",
-        
-                "book_id": book_id,
-                "book_name": book_name,
-                "author": author,
-        
-                "user_id": requester_id,
-                "member_name": requester_username,
-        
-                "request_id": request_id,
-                "approved_date": approved_date,
-                "approved_by": admin_id,
-                "approver_name": admin.get("username"),
-        
-                "actions": ["View Details"],
-                "status": "Approved",
-                "is_read": False,
-                "created_at": datetime.utcnow()
-            }
-        )    
+                user_id=requester_id,
+
+                notification_type="APPROVED_REQUEST",
+
+                title="Borrow Request Approved",
+
+                message=f"Your request for {book_name} has been approved.",
+
+                request_id=request_id,
+
+                book_id=book_id,
+                book_name=book_name,
+                author=author,
+
+                member_id=requester_id,
+                member_name=requester_username,
+
+                approved_by = admin_id,
+                approver_name = admin_name,
+                approved_date = approved_date,
+
+                status="Approved",
+
+                actions=["View Details"]
+            )
 
 
         return jsonify({"message": "Request Approved"}), 200
@@ -372,34 +452,33 @@ def RequestStatus():
         )
 
         
-        notification_col.insert_one(
-            {
-                "notification_id": Generate_Notification_Id(),
-                "recipient_id": requester_id,
-                "recipient_role_id": requester_role_id,
-                 
-                "type": "REJECTED_REQUEST",
-                "title": "Borrow Request Rejected",
-                "message": f"Your request for {book_name} has been Rejected.",
-                 
-                "book_id": book_id,
-                "book_name": book_name,
-                "author": author,
-                 
-                "user_id": requester_id,
-                "member_name": requester_username,
-                 
-                "request_id": request_id,
-                "rejected_date": approved_date,
-                "rejected_by": admin_id,
-                "rejecter_name": admin.get("username"),
-                 
-                "actions": ["View Details"],
-                "status": "Rejected",
-                "is_read": False,
-                "created_at": datetime.utcnow()
-            }
-        )   
+        Notify_User(
+        
+                        user_id=requester_id,
+        
+                        notification_type="APPROVED_REQUEST",
+        
+                        title="Borrow Request Approved",
+        
+                        message=f"Your request for {book_name} has been approved.",
+        
+                        request_id=request_id,
+        
+                        book_id=book_id,
+                        book_name=book_name,
+                        author=author,
+        
+                        member_id=requester_id,
+                        member_name=requester_username,
+        
+                        rejected_by = admin_id,
+                        rejecter_name = admin_name,
+                        rejected_date = approved_date,
+        
+                        status="Approved",
+        
+                        actions=["View Details"]
+                    )
 
         
         return jsonify({"message": "Request Rejected"}), 200
@@ -413,6 +492,8 @@ def RequestStatus():
 @jwt_required()
 def BookRecords():
     Check_Overdue_Books()
+
+    Send_Overdue_Notification()
 
     claim = get_jwt()
 
@@ -519,91 +600,51 @@ def Return_Book():
                 }
             )    
 
-    if role_id == 'R2':
-        notification_col.insert_one(
-            {
-                "notification_id": Generate_Notification_Id(),
-                "recipient_id": user_id,
-                "recipient_role_id": role_id,
-                
-                "type": "RETURNED_BOOK",
-                "title": "Book Returned",
-                "message": f"You have successfully returned '{book_details.get("book_name")}'.",
-                
-                "book_id": book_id,
-                "book_name": book_details.get("book_name"),
-                "author": book_details.get("author"),
-                "image": book_details.get("image"),
-                
-                "user_id": user_id,
-                "member_name": user.get("username"),
-                
-                "request_id": request_id,
-                "returned_date": datetime.utcnow(),
-                
-                "actions": ["View Details"],
-                "status": "Returned",
-                "is_read": False,
-                "created_at": datetime.utcnow()
-            }
+    if role_id == "R2":
+
+        Notify_User(
+            user_id=user_id,
+            notification_type="RETURNED_BOOK",
+            title="Book Returned",
+            message=f"You have successfully returned '{book_details.get('book_name')}'.",
+
+            book_id=book_id,
+            book_name=book_details.get("book_name"),
+            author=book_details.get("author"),
+            image=book_details.get("image"),
+
+            member_id=user_id,
+            member_name=user.get("username"),
+
+            request_id=request_id,
+            returned_date=datetime.utcnow(),
+
+            actions=["View Details"],
+            status="Returned"
         )    
 
-    admins = user_col.find(
-        {
-            "role_id": "R1"
-        },
-        {
-            "_id": 0,
-            "id": 1,
-            "username": 1
-        }
-    )
+        Notify_All_Admins(
+            notification_type="RETURNED_BOOK",
+            title="Book Returned",
+            message=f"{user.get('username')} returned '{book_details.get('book_name')}'.",
 
-    for admin in admins:
+            book_id=book_id,
+            book_name=book_details.get("book_name"),
+            author=book_details.get("author"),
+            image=book_details.get("image"),
 
-        notification = {
-            "notification_id": Generate_Notification_Id(),
+            member_id=user_id,
+            member_name=user.get("username"),
 
-            "recipient_id": admin["id"],
-            "recipient_role_id": "R1",
+            request_id=request_id,
+            returned_date=datetime.utcnow(),
 
-            "type": "RETURNED_BOOK",
-
-            "title": "Book Returned",
-
-            "message": (
-                f"{user.get("username")} returned "
-                f"'{book_details.get("book_name")}'."
-            ),
-
-            "book_id": book_id,
-            "book_name": book_details.get("book_name"),
-            "author": book_details.get("author"),
-            "image": book_details.get("image"),
-
-            "user_id": user_id,
-            "member_name": user.get("username"),
-
-            "request_id": request_id,
-            "returned_date": datetime.utcnow(),
-
-            "actions": ["View Details"],
-
-            "status": "Returned",
-
-            "is_read": False,
-
-            "created_at": datetime.utcnow()
-        }
-
-        notification_col.insert_one(notification)
+            actions=["View Details"],
+            status="Returned"
+        )
 
             # Real-time admin notification
-        socketio.emit(
-            "notification",
-            notification,
-            room=f"user_{admin['id']}"
-        )
+        
 
     # --------------------------------------------------
     # 11. Response
@@ -673,3 +714,5 @@ def popular_books():
     result = list(borrow_request_col.aggregate(pipeline))
 
     return jsonify(result), 200
+
+

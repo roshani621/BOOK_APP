@@ -10,7 +10,7 @@ import { IoSearchOutline } from 'react-icons/io5';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import { MdMenuBook } from 'react-icons/md';
+import { MdAssignmentReturn, MdMenuBook } from 'react-icons/md';
 import { CgSandClock } from "react-icons/cg";
 import { FaClipboardCheck, FaRegClock } from 'react-icons/fa';
 import { TbCancel } from "react-icons/tb";
@@ -154,10 +154,10 @@ const BorrowHistory = () => {
             key: 'request_date',
             render: (_, record) => (
                 <div>
-                    <Text>
-                        {record.request_date ? 
-                        <Text className='table-date'>{new Date(record.request_date).toLocaleDateString()}</Text> :
-                            <Text className='table-date'> - </Text>}
+                    <Text className='table-date'>
+                        {record.request_date ?
+                            dayjs(record.request_date).format('MMM DD, YYYY') : '-'
+                        }
                     </Text>
                 </div>
             )
@@ -167,9 +167,10 @@ const BorrowHistory = () => {
             key: 'due_date',
             render: (_, record) => (
                 <div>
-                    <Text>
-                        {record.due_date ? <Text className='table-date'>{new Date(record.due_date).toLocaleDateString()}</Text> :
-                            <Text className='table-date'> - </Text>}
+                    <Text className='table-date'>
+                        {record.due_date ?
+                            dayjs(record.due_date).format('MMM DD, YYYY') : '-'
+                        }
                     </Text>
                 </div>
             )
@@ -179,9 +180,10 @@ const BorrowHistory = () => {
             key: 'return_date',
             render: (_, record) => (
                 <div>
-                    <Text>
-                        {record.return_date ? <Text className='table-date'>{new Date(record.return_date).toLocaleDateString()}</Text> :
-                            <Text className='table-date'> - </Text>}
+                    <Text className='table-date'>
+                        {record.return_date ?
+                            dayjs(record.return_date).format('MMM DD, YYYY') : '-'
+                        }
                     </Text>
                 </div>
             )
@@ -193,42 +195,37 @@ const BorrowHistory = () => {
                 <Tag
                     style={{
                         background:
-                            record.status === 'Pending' ? '#FDE68A' :
-                                record.status === 'Approved' ? '#BBF7D0' :
-                                    record.status === 'Rejected' ? '#FECACA' :
-                                        '#374151',
+                            record.status === 'Pending' ? '#332A18' :
+                                record.status === 'Approved' ? '#182A20' :
+                                    record.status === 'Rejected' ? '#351C20' :
+                                        record.status === 'Overdue' ? '#352219' :
+                                            record.status === 'Return' ? '#162436' :
+                                            '#374151',
 
                         color:
-                            record.status === 'Pending' ? '#78350F' :
-                                record.status === 'Approved' ? '#14532D' :
-                                    record.status === 'Rejected' ? '#7F1D1D' :
-                                        '#F9FAFB',
+                            record.status === 'Pending' ? '#F6C453' :
+                                record.status === 'Approved' ? '#4CAF70' :
+                                    record.status === 'Rejected' ? '#F87171' :
+                                        record.status === 'Overdue' ? '#FB923C' :
+                                            record.status === 'Returned' ? '#669DF6' :
+                                            '#669DF6',
                         borderRadius: '9px'
                     }}
                 >
                     {record.status}
                 </Tag>
             )
-        },
-        {
-            title: <Text className='th-text'>Action</Text>,
-            key: 'action',
-            render: (_, record) => (
-                <div>
-                    ...
-                </div>
-            )
         }
     ]
 
     const stats = [
         { key: 'borrow_count', label: 'Total Borrowed', desc: 'Total books borrowed', icon: <MdMenuBook />, color: '#3B82F6' },
-        { key: 'returned_count', label: 'Returned', desc: 'Books returned', icon: <GoCheckCircleFill />, color: '#22C55E' },
+        { key: 'returned_count', label: 'Returned', desc: 'Books returned', icon: <MdAssignmentReturn />, color: '#22C55E' },
         { key: 'overdue_count', label: 'Overdue', desc: 'Books overdue', icon: <FaRegClock />, color: '#EF4444' },
         { key: 'pending_requests', label: 'Pending', desc: 'Total pending requests', icon: <CgSandClock />, color: '#F59E0B' },
     ];
     return (
-        <div style={{ background: '#2C2C2C', minHeight: '100vh' }}>
+        <div style={{ background: '#2C2C2C', minHeight: '100vh', overflow: 'auto' }}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
             <div style={{
@@ -248,7 +245,7 @@ const BorrowHistory = () => {
                 </div>
                 <div>
                     <Title level={3} style={{ color: '#f9fafb' }}>
-                        Borrow Records
+                        Borrow History
                     </Title>
                     <Text style={{ color: '#f9fafb' }}>
                         View and manage all books borrow records.
@@ -284,7 +281,17 @@ const BorrowHistory = () => {
             </div>
 
             <div>
-                <div style={{ margin: '20px 40px' }}>
+                <div style={{
+                    margin: '20px 40px', padding: '10px 15px',
+                    display: 'flex', justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div>
+                        <Title level={4} style={{
+                            color: '#F5F5F5',
+                            padding: '0px 18px', fontWeight: '600'
+                        }}>Borrow History</Title>
+                    </div>
                     <Row gutter={[20, 20]} className='request-filter'>
                         <Col>
                             <Title level={5} style={{
@@ -337,6 +344,10 @@ const BorrowHistory = () => {
                                         value: 'Overdue',
                                         label: 'Overdue'
                                     },
+                                    {
+                                        value: 'Returned',
+                                        label: 'Returned'
+                                    },
                                 ]}
                             />
                         </Col>
@@ -351,44 +362,6 @@ const BorrowHistory = () => {
                                 format={'DD-MM-YYYY'}
                                 allowClear
                                 className="request-date-picker"
-                            />
-                        </Col>
-                        <Col>
-                            <Title level={5} style={{
-                                color: '#F9FAFB',
-                                fontWeight: '500px'
-                            }}>Date Type</Title>
-
-                            <Select
-                                value={dateType}
-                                onChange={(value) => { setDateType(value) }}
-                                className="request-date-type"
-                                options={[
-                                    {
-                                        value: 'request_date',
-                                        label: 'Request Date'
-                                    },
-                                    {
-                                        value: 'approved_date',
-                                        label: 'Approved Date'
-                                    },
-                                    {
-                                        value: 'rejected_date',
-                                        label: 'Rejected Date'
-                                    },
-                                    {
-                                        value: 'due_date',
-                                        label: 'Due Date'
-                                    },
-                                    {
-                                        value: 'overdue_date',
-                                        label: 'Overdue Date'
-                                    },
-                                    {
-                                        value: 'return_date',
-                                        label: 'Returned Date'
-                                    },
-                                ]}
                             />
                         </Col>
                         <Col className="reset-button-col">

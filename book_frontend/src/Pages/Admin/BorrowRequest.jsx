@@ -9,7 +9,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import Navtab from '../../Components/Navtab';
 import Sidebar from '../../Components/Sidebar';
-import { MdCancel, MdMenuBook } from "react-icons/md";
+import { MdCancel, MdMenuBook, MdVisibility } from "react-icons/md";
 import '../../assets/Common.css';
 import { IoSearchOutline } from 'react-icons/io5';
 import { getAPI, postAPI } from '../../APIS/api';
@@ -18,6 +18,7 @@ import { FaCalendarAlt, FaCheckCircle, FaRegCalendarAlt } from 'react-icons/fa';
 import { FaBookOpenReader, FaClipboardList } from 'react-icons/fa6';
 import { FiEye } from 'react-icons/fi';
 import dayjs from 'dayjs';
+import { showNotification } from '../../Components/NotificationMessage';
 
 const { Text, Title } = Typography;
 const { RangePicker } = DatePicker
@@ -115,10 +116,20 @@ const BorrowRequest = () => {
                 book_id: book_id,
             });
             console.log(requestStatus, request_id, user_id, book_id);
+            showNotification(
+                'Approve',
+                'Request Approved',
+                'Borrow request approved successfully.'
+            );
             console.log(res.data);
             fetchRequest();
         } catch (err) {
-            console.log(err);
+            showNotification(
+                'error',
+                'Approval Failed!',
+                err.response?.data?.message ||
+                'Unable to approve the borrow request. Please try again.'
+            );
         }
     }
 
@@ -199,12 +210,11 @@ const BorrowRequest = () => {
             key: 'request_date',
             render: (_, book) => (
                 <div>
-                    <Text className='table-date'>Request for {book.borrow_days} days</Text><br />
                     <Text className='table-date'>
-                        {book.request_date ? 
-                            dayjs(book.request_date).format('MMM DD, YYYY') :'-'    
+                        {book.request_date ?
+                            dayjs(book.request_date).format('MMM DD, YYYY') : '-'
                         }
-                        
+
                     </Text>
                 </div>
             )
@@ -215,8 +225,8 @@ const BorrowRequest = () => {
             render: (_, book) => (
                 <div>
                     <Text className='table-date'>
-                        {book.due_date ? 
-                            dayjs(book.due_date).format('MMM DD, YYYY') :'-'    
+                        {book.due_date ?
+                            dayjs(book.due_date).format('MMM DD, YYYY') : '-'
                         }
                     </Text>
                 </div>
@@ -228,8 +238,8 @@ const BorrowRequest = () => {
             render: (_, book) => (
                 <div>
                     <Text className='table-date'>
-                        {book.return_date ? 
-                            dayjs(book.return_date).format('MMM DD, YYYY') :'-'    
+                        {book.return_date ?
+                            dayjs(book.return_date).format('MMM DD, YYYY') : '-'
                         }
                     </Text>
                 </div>
@@ -242,16 +252,20 @@ const BorrowRequest = () => {
                 <Tag
                     style={{
                         background:
-                            book.status === 'Pending' ? '#FDE68A' :
-                                book.status === 'Approved' ? '#BBF7D0' :
-                                    book.status === 'Rejected' ? '#FECACA' :
-                                        '#374151',
+                            book.status === 'Pending' ? '#332A18' :
+                                book.status === 'Approved' ? '#182A20' :
+                                    book.status === 'Rejected' ? '#351C20' :
+                                        book.status === 'Overdue' ? '#352219' :
+                                            book.status === 'Return' ? '#162436' :
+                                            '#374151',
 
                         color:
-                            book.status === 'Pending' ? '#78350F' :
-                                book.status === 'Approved' ? '#14532D' :
-                                    book.status === 'Rejected' ? '#7F1D1D' :
-                                        '#F9FAFB',
+                            book.status === 'Pending' ? '#F6C453' :
+                                book.status === 'Approved' ? '#4CAF70' :
+                                    book.status === 'Rejected' ? '#F87171' :
+                                        book.status === 'Overdue' ? '#FB923C' :
+                                            book.status === 'Returned' ? '#669DF6' :
+                                            '#669DF6',
                         borderRadius: '9px'
                     }}
                 >
@@ -266,7 +280,7 @@ const BorrowRequest = () => {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <Tooltip title="View request">
-                            <FiEye color='#9ca3af' style={{
+                            <MdVisibility color='#9ca3af' style={{
                                 cursor: 'pointer', fontSize: '26px'
                             }} onClick={() => { console.log("Preview", book) }} />
                         </Tooltip>
@@ -305,10 +319,10 @@ const BorrowRequest = () => {
         booksCount();
     }, [])
     return (
-        <div className='layout-bg'>
+        <div style={{ background: '#2C2C2C', overflow: 'auto' }}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
-            <div style={{ marginTop: '20px', background: '#232323' }}>
+            <div style={{ marginTop: '20px'}}>
                 <div style={{
                     display: 'flex', alignItems: 'center', gap: '16px',
                     margin: '10px 16px', padding: '12px 16px'
@@ -457,109 +471,104 @@ const BorrowRequest = () => {
                 </div>
 
                 <div>
-                    <Card style={{
-                        background: '#2C2C2C', borderColor: '#292929',
-                        margin: '20px 25px', padding: '8px 10px', border: '1px solid #3A3A3A',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
                     }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}>
-                            <div>
-                                <Title level={4} style={{
-                                    color: '#F5F5F5',
-                                    padding: '0px 18px', fontWeight: '600'
-                                }}>Borrow Requests</Title>
-                            </div>
-                            <div>
-                                <div style={{ margin: '10px 15px' }}>
-                                    <Row gutter={[16, 16]} className='request-filter'>
-                                        <Col>
-                                            <Text className='th-text'>Search</Text ><br />
-                                            <Input
-                                                className="request-search"
-                                                allowClear
-                                                value={searchText}
-                                                onChange={(e) => { setSearchText(e.target.value) }}
-                                                placeholder='search here books, users ...'
-                                                prefix={
-                                                    <IoSearchOutline
-                                                        style={{
-                                                            color: '#94A3B8',
-                                                            fontSize: '18px',
-                                                        }}
-                                                    />
-                                                }
-                                            />
-                                        </Col>
-                                        <Col>
-                                            <Text className='th-text'>Status</Text >
-                                            <Select
-                                                value={statusFilter}
-                                                onChange={(value) => { setStatusFilter(value) }}
-                                                className="request-status-select"
-                                                options={[
-                                                    {
-                                                        value: 'All',
-                                                        label: 'All'
-                                                    },
-                                                    {
-                                                        value: 'Pending',
-                                                        label: 'Pending'
-                                                    },
-                                                    {
-                                                        value: 'Approved',
-                                                        label: 'Approved'
-                                                    },
-                                                    {
-                                                        value: 'Rejected',
-                                                        label: 'Rejected'
-                                                    },
-                                                    {
-                                                        value: 'Overdue',
-                                                        label: 'Overdue'
-                                                    },
-                                                ]}
-                                            />
-                                        </Col>
-                                        <Col>
-                                            <Text className='th-text'>Date Range</Text > <br />
-                                            <RangePicker
-                                                value={dateRange}
-                                                onChange={(dates) => { setDateRange(dates) }}
-                                                format={'DD-MM-YYYY'}
-                                                allowClear
-                                                className="request-date-picker"
-                                            />
-                                        </Col>
+                        <div>
+                            <Title level={4} style={{
+                                color: '#F5F5F5',
+                                padding: '0px 18px', fontWeight: '600'
+                            }}>Borrow Requests</Title>
+                        </div>
+                        <div>
+                            <div style={{ margin: '10px 15px' }}>
+                                <Row gutter={[16, 16]} className='request-filter'>
+                                    <Col>
+                                        <Text className='th-text'>Search</Text ><br />
+                                        <Input
+                                            className="request-search"
+                                            allowClear
+                                            value={searchText}
+                                            onChange={(e) => { setSearchText(e.target.value) }}
+                                            placeholder='search here books, users ...'
+                                            prefix={
+                                                <IoSearchOutline
+                                                    style={{
+                                                        color: '#94A3B8',
+                                                        fontSize: '18px',
+                                                    }}
+                                                />
+                                            }
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <Text className='th-text'>Status</Text >
+                                        <Select
+                                            value={statusFilter}
+                                            onChange={(value) => { setStatusFilter(value) }}
+                                            className="request-status-select"
+                                            options={[
+                                                {
+                                                    value: 'All',
+                                                    label: 'All'
+                                                },
+                                                {
+                                                    value: 'Pending',
+                                                    label: 'Pending'
+                                                },
+                                                {
+                                                    value: 'Approved',
+                                                    label: 'Approved'
+                                                },
+                                                {
+                                                    value: 'Rejected',
+                                                    label: 'Rejected'
+                                                },
+                                                {
+                                                    value: 'Overdue',
+                                                    label: 'Overdue'
+                                                },
+                                            ]}
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <Text className='th-text'>Date Range</Text > <br />
+                                        <RangePicker
+                                            value={dateRange}
+                                            onChange={(dates) => { setDateRange(dates) }}
+                                            format={'DD-MM-YYYY'}
+                                            allowClear
+                                            className="request-date-picker"
+                                        />
+                                    </Col>
 
-                                        <Col className="reset-button-col">
-                                            <Button
-                                                className="request-reset-btn"
-                                                onClick={() => {
-                                                    setSearchText('');
-                                                    setStatusFilter('All');
-                                                    setDateRange(null);
-                                                }}
-                                                disabled={!searchText && statusFilter === 'All' && !dateRange}
+                                    <Col className="reset-button-col">
+                                        <Button
+                                            className="request-reset-btn"
+                                            onClick={() => {
+                                                setSearchText('');
+                                                setStatusFilter('All');
+                                                setDateRange(null);
+                                            }}
+                                            disabled={!searchText && statusFilter === 'All' && !dateRange}
 
-                                            >
-                                                Reset
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </div>
+                                        >
+                                            Reset
+                                        </Button>
+                                    </Col>
+                                </Row>
                             </div>
                         </div>
+                    </div>
 
+                    <div className='table-container'>
                         <Table
+                            className='request-table'
                             columns={items}
                             dataSource={filterRequest}
-                            className='request-table'
-                            rowKey="request_id"
-                            style={{ marginTop: '20px', }}
+                            rowKey={'_id'}
 
                             pagination={{
                                 pageSize: 5,
@@ -569,7 +578,7 @@ const BorrowRequest = () => {
                                     `Showing ${range[0]}-${range[1]} of ${total} requests`
                             }}
                         />
-                    </Card>
+                    </div>
                 </div>
 
                 <Modal
@@ -577,7 +586,7 @@ const BorrowRequest = () => {
                         <Title level={5} style={{ color: '#D1D5DB' }}>Reject Request</Title>
                     }
                     open={isModalOpen}
-                    
+
                     footer={[
                         <Button
                             key="cancel"

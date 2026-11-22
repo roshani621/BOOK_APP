@@ -11,8 +11,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config)=>{
         const token = localStorage.getItem("b_token");
-        console.log("REQUEST URL:", config.url);
-        console.log("JWT TOKEN:", token);
+        
         if(token){
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -29,11 +28,6 @@ export const getAPI = async(url) =>{
         const res = await api.get(url);
         return res;
     } catch(err){
-        notification.error({
-            message: "Error",
-            description: err.response?.data?.message || "Something went wrong.",
-        });
-
         throw err;
     }
 }
@@ -43,17 +37,8 @@ export const postAPI = async(url, data) => {
     try{
         const res = await api.post(url, data);
 
-        notification.success({
-            message: "Success",
-            description: res.data.message || "Operation completed successfully.",
-        });
         return res;
     } catch(err){
-        notification.error({
-            message: "Error",
-            description: err.response?.data?.message || "Something went wrong.",
-        });
-
         throw err;
     }
 }
@@ -62,18 +47,8 @@ export const postAPI = async(url, data) => {
 export const putAPI = async(url, data) => {
     try{
         const res = await api.put(url, data);
-
-        notification.success({
-            message: "Success",
-            description: res.data.message || "Updated successfully.",
-        });
         return res;
     } catch(err){
-        notification.error({
-            message: "Error",
-            description: err.response?.data?.message || "Something went wrong.",
-        });
-
         throw err;
     }
 }

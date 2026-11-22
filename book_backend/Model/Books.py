@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from DB import book_col, borrow_request_col, user_col, db, notification_col
 from datetime import datetime, timedelta, timezone
-from Notifications import Generate_Notification_Id
+from Notifications import Notify_All_Members
 # from gridfs import GridFS
 import random
 from flask_jwt_extended import jwt_required, get_jwt
@@ -77,7 +77,7 @@ def BooksCount():
 
     user_id = claims.get("b_user_id")
     role_id = claims.get("b_role_id")
-    print(user_id, role_id)
+
 
     total_books = sum(
         book.get("total_copies", 0)
@@ -154,7 +154,6 @@ def BooksCount():
         rejected_count = 0
 
 
-    print("overdue",  overdue_count)
     return jsonify({
         "books_count": books_count,
         "total_books": total_books,
@@ -181,7 +180,7 @@ def Add_Book():
         data = request.get_json()
         count = book_col.count_documents({})
         book_id = f"B{count + 1}"
-
+        
         book = {
             "id": book_id,
             "book_name": data.get("book_name", ""),
@@ -198,60 +197,38 @@ def Add_Book():
             "publish_date": data.get("publish_date", ""),
             "published_by": data.get("published_by", "")
         }
-
+            
         book_col.insert_one(book)
         
-        users = user_col.find(
-            {"role_id": "R2"},
-            {
-                "_id": 0,
-                "id": 1,
-                "role_id": 1
-            }
+
+        notification_created = Notify_All_Members(
+
+            notification_type="NEW_ARRIVAL",
+
+            title="New Book Added",
+            message=f"{book['book_name']} has been added to the library.",
+
+            book_id=book_id,
+            book_name=book["book_name"],
+            author=book["author"],
+            publisher=book["published_by"],
+
+            rating=book["rating"],
+            total_copies=book["total_copies"],
+            available_copies=book["available_copies"],
+            image = book["image"],
+
+            status="Added",
+
+            actions=["View Book"]
         )
 
-        notification_count = 0
-
-        for user in users:
-
-            notification = {
-                "notification_id": Generate_Notification_Id(),
-
-                "recipient_id": user["id"],
-                "recipient_role_id": user["role_id"],
-
-                "type": "NEW_ARRIVAL",
-
-                "title": "New Book Added",
-                "message": f"{book["book_name"]} has been added to the library.",
-
-                "book_id": book_id,
-                "book_name": book["book_name"],
-                "author": book["author"],
-                "publisher": book["published_by"],
-
-                "rating": book["rating"],
-                "total_copies": book["total_copies"],
-                "available_copies": book["available_copies"],
-
-                "status": "Added",
-
-                "actions": ["View Book"],
-
-                "is_read": False,
-
-                "created_at": datetime.utcnow()
-            }
-
-            notification_col.insert_one(notification)
-
-            notification_count += 1
         
         return jsonify({
             "success": True,
             "message": "Book added successfully",
             "book_id": book_id,
-            "notifications_created": notification_count
+            "notifications_created": notification_created
         }), 201
     
     except Exception as e:
@@ -263,22 +240,19 @@ def Add_Book():
 
 #Update Book
 
-@books_api.route('/update-book', methods=['PUT'])
+@books_api.route('/update-book/<book_id>', methods=['PUT'])
 @jwt_required()
-def Update_Book():
+def Update_Book(book_id):
     try:
         
         data = request.get_json()
 
-        book_id = data.get("id")
+        if not data:
+            return({
+                "success": False,
+                "message": "Request data is missing"
+            }), 400
     
-        # image = request.files['image']
-
-        # image_id = fs.put(
-        #     image,
-        #     filename = image.filename,
-        #     content_type = image.content_type
-        # )
         
         book = {
             "book_name": data.get("book_name"),
@@ -298,7 +272,6 @@ def Update_Book():
         }
 
         result = book_col.update_one({"id": book_id}, {"$set": book})
-        print(book)
 
         if result.matched_count == 0:
             return jsonify({

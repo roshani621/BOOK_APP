@@ -171,9 +171,9 @@ const RequestRecords = () => {
             key: 'return_date',
             render: (_, record) => (
                 <div>
-                    <Text className='table-date'>{record.return_date ? 
-                dayjs(record.return_date).format('MMM DD, YYYY') :'-'    
-                }</Text>
+                    <Text className='table-date'>{record.return_date ?
+                        dayjs(record.return_date).format('MMM DD, YYYY') : '-'
+                    }</Text>
                 </div>
             )
         },
@@ -184,30 +184,25 @@ const RequestRecords = () => {
                 <Tag
                     style={{
                         background:
-                            record.status === 'Pending' ? '#FDE68A' :
-                                record.status === 'Approved' ? '#BBF7D0' :
-                                    record.status === 'Rejected' ? '#FECACA' :
-                                        '#374151',
+                            record.status === 'Pending' ? '#332A18' :
+                                record.status === 'Approved' ? '#182A20' :
+                                    record.status === 'Rejected' ? '#351C20' :
+                                        record.status === 'Overdue' ? '#352219' :
+                                            record.status === 'Return' ? '#162436' :
+                                            '#374151',
 
                         color:
-                            record.status === 'Pending' ? '#78350F' :
-                                record.status === 'Approved' ? '#14532D' :
-                                    record.status === 'Rejected' ? '#7F1D1D' :
-                                        '#F9FAFB',
+                            record.status === 'Pending' ? '#F6C453' :
+                                record.status === 'Approved' ? '#4CAF70' :
+                                    record.status === 'Rejected' ? '#F87171' :
+                                        record.status === 'Overdue' ? '#FB923C' :
+                                            record.status === 'Returned' ? '#669DF6' :
+                                            '#669DF6',
                         borderRadius: '9px'
                     }}
                 >
                     {record.status}
                 </Tag>
-            )
-        },
-        {
-            title: <Text className='th-text'>Action</Text>,
-            key: 'action',
-            render: (_, record) => (
-                <div>
-                    ...
-                </div>
             )
         }
     ]
@@ -219,7 +214,7 @@ const RequestRecords = () => {
         { key: 'reject_requests', label: 'Rejected', desc: 'Total rejected requests', icon: <TbCancel />, color: '#EF4444' },
     ];
     return (
-        <div style={{ background: '#2C2C2C', minHeight: '100vh' }}>
+        <div style={{ background: '#2C2C2C', overflow: 'auto' }}>
             <Navtab onMenuClick={showDrawer} />
             <Sidebar open={open} onClose={closeDrawer} />
             <div style={{
@@ -275,7 +270,16 @@ const RequestRecords = () => {
             </div>
 
             <div>
-                <div style={{ margin: '20px 40px', padding: '10px 15px' }}>
+                <div style={{ margin: '20px 40px', padding: '10px 15px',
+                    display: 'flex', justifyContent: 'space-between', 
+                    alignItems: 'center'
+                }}>
+                    <div>
+                        <Title level={4} style={{
+                            color: '#F5F5F5',
+                            padding: '0px 18px', fontWeight: '600'
+                        }}>Borrow Records</Title>
+                    </div>
                     <Row gutter={[20, 20]} className='request-filter'>
                         <Col>
                             <Text className='th-text'>Search</Text ><br />
@@ -322,6 +326,10 @@ const RequestRecords = () => {
                                         value: 'Overdue',
                                         label: 'Overdue'
                                     },
+                                    {
+                                        value: 'Returned',
+                                        label: 'Returned'
+                                    },
                                 ]}
                             />
                         </Col>
@@ -335,48 +343,13 @@ const RequestRecords = () => {
                                 className="request-date-picker"
                             />
                         </Col>
-                        <Col>
-                            <Text className='th-text'>Date Type</Text > <br />
 
-                            <Select
-                                value={dateType}
-                                onChange={(value) => { setDateType(value) }}
-                                className="request-date-type"
-                                options={[
-                                    {
-                                        value: 'request_date',
-                                        label: 'Request Date'
-                                    },
-                                    {
-                                        value: 'approved_date',
-                                        label: 'Approved Date'
-                                    },
-                                    {
-                                        value: 'rejected_date',
-                                        label: 'Rejected Date'
-                                    },
-                                    {
-                                        value: 'due_date',
-                                        label: 'Due Date'
-                                    },
-                                    {
-                                        value: 'overdue_date',
-                                        label: 'Overdue Date'
-                                    },
-                                    {
-                                        value: 'return_date',
-                                        label: 'Returned Date'
-                                    },
-                                ]}
-                            />
-                        </Col>
                         <Col className="reset-button-col">
                             <Button
                                 className="request-reset-btn"
                                 onClick={() => {
                                     setSearchText('');
                                     setStatusFilter('All');
-                                    setDateType('request_date');
                                     setDateRange(null);
                                 }}
                                 disabled={!searchText && statusFilter === 'All' && !dateRange}

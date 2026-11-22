@@ -6,6 +6,7 @@ import Sidebar from '../../Components/Sidebar';
 import '../../assets/Main.css';
 import { getAPI, postAPI } from '../../APIS/api';
 import API from '../../APIS/endpoints';
+import { showNotification } from '../../Components/NotificationMessage';
 
 const { Meta } = Card;
 const { Text, Title } = Typography;
@@ -46,16 +47,26 @@ const ViewBooks = () => {
                 book_id: bookId,
                 borrow_days: borrowDays
             });
+            showNotification(
+                'success',
+                "Borrow Request",
+                "Your borrow request has been submitted."
+            )
             closeBookDrawer();
         } catch (err) {
-            console.log(err);
+            showNotification(
+                'error',
+                'Borrow Failed!',
+                err.response?.data?.message ||
+                'Unable to submit your borrow request. Please try again.'
+            );
         }
     }
 
     const category = ["All", ...new Set(books.map(b => b.category))];
     console.log(category);
 
-    
+
 
     useEffect(() => {
         fetchBooks();
@@ -75,73 +86,74 @@ const ViewBooks = () => {
                 </div>
 
                 <div>
-                    {category.map((cat)=>(
-                        <Tag 
-                        key={cat}
-                        onClick={()=>{
-                            setSelectedCat(cat)}}
-                        style={{
-                            cursor: 'pointer',
-                            color: selectedCat === cat? '#ffffff' : '#d1d5db',
-                            borderColor: selectedCat === cat ? '#B91C1C' : '#555555',
-                            background: selectedCat === cat ? '#dc2626' : '#3f3f46',
-                            fontSize: '13px', borderRadius: '999px', padding: '4px 12px',
-                            fontWeight: '500px', margin: '20px 10px'
-                        }}>{cat}</Tag>
+                    {category.map((cat) => (
+                        <Tag
+                            key={cat}
+                            onClick={() => {
+                                setSelectedCat(cat)
+                            }}
+                            style={{
+                                cursor: 'pointer',
+                                color: selectedCat === cat ? '#ffffff' : '#d1d5db',
+                                borderColor: selectedCat === cat ? '#B91C1C' : '#555555',
+                                background: selectedCat === cat ? '#dc2626' : '#3f3f46',
+                                fontSize: '13px', borderRadius: '999px', padding: '4px 12px',
+                                fontWeight: '500px', margin: '20px 10px'
+                            }}>{cat}</Tag>
                     ))}
                 </div>
-                <Row style={{marginTop: '20px'}}>
+                <Row style={{ marginTop: '20px' }}>
                     <Col style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                flexWrap: 'wrap',
-                                justifyContent: 'center',
-                                gap: '60px'
-                            }}>
-                        {books.filter(book=>
-                            selectedCat === "All" ? true:book.category === selectedCat
-                        ).map(book=>(
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        gap: '60px'
+                    }}>
+                        {books.filter(book =>
+                            selectedCat === "All" ? true : book.category === selectedCat
+                        ).map(book => (
                             <Card style={{
                                 background: '#232323',
                                 overflow: 'hidden',
                                 width: '250px',
-                                borderRadius:'20px',
-                                border:'none'
+                                borderRadius: '20px',
+                                border: 'none'
                             }}
-                            onClick={()=>handleBookClick(book)}
+                                onClick={() => handleBookClick(book)}
                             >
                                 <img src={book.image} style={{
                                     width: '200px',
-                                    height:'280px',
+                                    height: '280px',
                                     objectFit: 'cover',
                                     borderRadius: '12px'
-                                }}/>
+                                }} />
 
                                 <div>
-                                    <Title level={4} 
-                                    ellipsis={{tooltip: book.book_name}}
-                                    style={{color: '#fff'}}>{book.book_name}</Title>
+                                    <Title level={4}
+                                        ellipsis={{ tooltip: book.book_name }}
+                                        style={{ color: '#fff' }}>{book.book_name}</Title>
                                     <Text style={{
-                                        color:'#fff'
+                                        color: '#fff'
                                     }} type='secondary'>{book.author}</Text><br />
                                     <Tag
-                                    style={{
-                                        background: '#3f3f46',
-                                        color: '#d1d5db',
-                                        marginTop: '10px',
-                                        borderRadius: '12px',
-                                        padding: '2px 8px',
-                                    }}
+                                        style={{
+                                            background: '#3f3f46',
+                                            color: '#d1d5db',
+                                            marginTop: '10px',
+                                            borderRadius: '12px',
+                                            padding: '2px 8px',
+                                        }}
                                     >{book.category}</Tag>
                                 </div>
-                            </Card>        
-                        ))} 
+                            </Card>
+                        ))}
                     </Col>
                 </Row>
                 <div>
                     <Drawer
                         title={<Title level={4} style={{
-                            marginTop: '10px', color:'#d1d5db',
+                            marginTop: '10px', color: '#d1d5db',
                             fontFamily: "'Poppins', 'Segoe UI', sans-serif"
                         }}>
                             Book Details
@@ -158,7 +170,7 @@ const ViewBooks = () => {
                             {selectedBook && (
                                 <Card key={selectedBook.id} style={{
                                     borderRadius: '14px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                                    background: '#2C2C2C', borderColor:'#555555'
+                                    background: '#2C2C2C', borderColor: '#555555'
                                 }}>
                                     <div style={{
                                         display: 'flex',
@@ -172,7 +184,7 @@ const ViewBooks = () => {
                                                 background: 'rgba(0, 0, 0, 0.1)', padding: '20px',
                                                 borderRadius: '12px',
                                                 marginBottom: '20px',
-                                                border:'none'
+                                                border: 'none'
                                             }}
                                             className='card-ui'
                                         >
@@ -189,13 +201,13 @@ const ViewBooks = () => {
                                         <Text>Total Pages - {selectedBook.total_pages}</Text>
                                         <Text>Available Copies - {selectedBook.available_copies}</Text>
                                         <Text>Status:
-                                            {selectedBook.available_copies > 0 ? 
-                                            <Tag style={{
-                                                borderRadius: '999px', marginLeft: '6px',
-                                                color: 'green', fontWeight: '600'
-                                            }}>Available</Tag> :
-                                            <Tag>--</Tag>   
-                                        }</Text>
+                                            {selectedBook.available_copies > 0 ?
+                                                <Tag style={{
+                                                    borderRadius: '999px', marginLeft: '6px',
+                                                    color: 'green', fontWeight: '600'
+                                                }}>Available</Tag> :
+                                                <Tag>--</Tag>
+                                            }</Text>
                                         <Text>Rating - {selectedBook.rating}</Text>
                                         <Text>Borrow Days</Text>
                                         <InputNumber

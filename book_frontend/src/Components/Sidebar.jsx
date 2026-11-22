@@ -25,7 +25,7 @@ const Sidebar = ({ open, onClose }) => {
     const fetchMenus = async () => {
         try {
             const res = await getAPI(`/menu/${user_id}`);
-            console.log(res.data);
+            
             setMenus(res.data.menus);
         } catch (err) {
             console.log(err);

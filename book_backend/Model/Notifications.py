@@ -23,7 +23,7 @@ def Generate_Notification_Id():
     
     if last: 
         last_id = last.get("notification_id", "N000")
-        last_number = int(last_id[1:])
+        last_number = int(last_id[1:])  
         new_id = last_number + 1
     else:
         new_id = 1
@@ -43,7 +43,8 @@ def Create_Notification(
     request_id=None,
     updated_by=None,
     status=None,
-    actions=None
+    actions=None,
+    **kwargs
     ):
 
     notification_id = Generate_Notification_Id()
@@ -73,7 +74,8 @@ def Create_Notification(
         "actions": actions or [],
         "is_read": False,
 
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow(),
+        **kwargs
     }
 
     result = notification_col.insert_one(notification)
@@ -87,6 +89,90 @@ def Create_Notification(
     )
 
     return notification    
+
+# Notification For All Admin
+
+def Notify_All_Admins(
+    notification_type,
+    title,
+    message,
+    **kwargs
+):
+
+    admins = user_col.find(
+        {"role_id": "R1"},
+        {"_id": 0, "id": 1, "role_id": 1}
+    )
+
+    for admin in admins:
+
+        Create_Notification(
+            recipient_id=admin["id"],
+            recipient_role_id=admin["role_id"],
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            **kwargs
+        )
+
+# Notification For All members
+
+
+def Notify_All_Members(
+    notification_type,
+    title,
+    message,
+    **kwargs
+):
+
+    members = user_col.find(
+        {"role_id": "R2"},
+        {"_id": 0, "id": 1, "role_id": 1}
+    )
+
+    for member in members:
+
+        Create_Notification(
+            recipient_id=member["id"],
+            recipient_role_id=member["role_id"],
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            **kwargs
+        )
+
+# Notification For specific members
+
+def Notify_User(
+    member_id,
+    notification_type,
+    title,
+    message,
+    **kwargs
+):
+
+    member = user_col.find_one(
+        {
+            "id": member_id,
+            "role_id": "R2"
+        },
+        {
+            "_id": 0,
+            "id": 1,
+            "role_id": 1
+        }
+    )
+
+    if member:
+
+        return Create_Notification(
+            recipient_id=member["id"],
+            recipient_role_id=member["role_id"],
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            **kwargs
+        )
 
 
 @notification_api.route('/notification', methods=['GET'])
@@ -267,140 +353,5 @@ def Notification():
     }), 200
 
 
-
-
-
-
-
-#     role_id, user_id = Get_Notification_User()
-
-#     notification = notification_col.find(
-#         {},
-#         {
-#             "_id": 1,
-#             "notification_id": 1,
-#             "type": 1,
-#             "title": 1,
-#             "message": 1,
-#             "book_id": 1,
-#             "book_name": 1,
-#             "member_name": 1,
-#             "status": 1,
-#             "actions": 1,
-#             "is_read": 1,
-#             "created_at": 1
-#         }
-#     ).sort("created_at", -1)
-
-#     notification_list = []
-
-#     for n in notification:
-#         n["_id"] = str(n["_id"])
-
-#         if n.get("book_id"):
-#             book = book_col.find_one(
-#                 {"id": n["book_id"]},
-#                 {"_id": 0, "book_name": 1}
-#             )
-
-#             if book:
-#                 n["book_name"] = book["book_name"]
-
-#         notification_list.append(n)
-
-#     #Member see only request
-
-#     if role_id == "R2":
-#         requests = borrow_request_col.find(
-#             {"user_id": user_id},
-#         ).sort("created_at", -1)
-#     elif role_id == "R1":
-#         requests = borrow_request_col.find(
-#             {}
-#         ).sort("created_at", -1)
-
-#     for request in requests:
-#         book = book_col.find_one(
-#             {"id": request["book_id"]},
-#             {
-#                 "_id": 0,
-#                 "book_name": 1
-#             }
-#         )
-
-#         book_name = book["book_name"] if book else "Unknown Book"
-
-#     #pending request
-
-#         if request["status"] == "Pending":
-
-#             notification_list.append({
-#                 "request_id": str(request["request_id"]),
-#                 "notification_id": 1,
-#                 "type": "PENDING_REQUEST",
-#                 "title": "Borrow Request Pending",
-#                 "message": f'Your request for "{book_name}" is pending.',
-#                 "book_id": request["book_id"],
-#                 "book_name": book_name,
-#                 "status": "Pending",
-#                 "actions": ["VIEW"],
-#                 "is_read": False,
-#                 "created_at": request["created_at"]
-#             })
-
-#         elif(
-#             request["status"] == "Approved"
-#             and request.get("return_date") is None
-#             and request.get("overdue_days", 0) > 0
-#         ):
-#             fine = request.get("fine", 0)
-#             overdue_days = request.get("overdue_days", 0)
-
-#             notification_list.append({
-#                 "notification_id": request["request_id"],
-#                 "type": "BOOK_OVERDUE",
-#                 "title": "Book Overdue",
-#                 "message": (
-#                     f'"{book_name}" is overdue by '
-#                     f'{overdue_days} days. '
-#                 ),
-#                 "book_id": request["book_id"],
-#                 "book_name": book_name,
-#                 "status": "Overdue",
-#                 "fine": fine,
-#                 "overdue_days": overdue_days,
-#                 "actions": ["RETURN_BOOK", "PAY_FINE"],
-#                 "is_read": False,
-#                 "created_at": request["updated_at"]
-#             })
-
-#         elif request["status"] == "Approved":
-
-#             notification_list.append({
-#                 "notification_id": request["request_id"],
-#                 "type": "APPROVED_REQUEST",
-#                 "title": "Borrow Request Approved",
-#                 "message": (
-#                     f'Your request for "{book_name}" '
-#                     f'has been approved.'
-#                 ),
-#                 "book_id": request["book_id"],
-#                 "book_name": book_name,
-#                 "status": "Approved",
-#                 "actions": ["VIEW"],
-#                 "is_read": False,
-#                 "created_at": request.get(
-#                     "approved_date",
-#                     request["created_at"]
-#                 )
-#             })
-
-        
-    
-
-#     return jsonify({
-#         "message": 'Notification',
-#         "notification": notification_list,
-#     }), 200
 
 
